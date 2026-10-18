@@ -108,7 +108,7 @@ export function SessionRoom() {
             <div className="h-6 w-px bg-white/10" />
             <div>
               <div className="font-serif text-sm font-bold">晚間雜事衝刺 #3</div>
-              <div className="mt-0.5 text-xs text-white/45">今晚 21:00 - 21:50 · {participants.length} / 5 人</div>
+              <div className="mt-0.5 text-xs text-white/45">2026/05/17（週日）21:00 - 21:50 · {participants.length} / 5 人</div>
             </div>
             <div className="hidden items-center gap-1.5 rounded-full border border-forest/35 bg-forest/25 px-3 py-1 text-xs font-bold text-[#7EDBB8] sm:flex">
               <span className="size-1.5 animate-blink rounded-full bg-current" />
@@ -285,7 +285,7 @@ export function SessionRoom() {
               </div>
 
               <div className="rounded-xl border border-border bg-cream p-3 text-sm leading-[1.6] text-muted">
-                場次結束時，做完的會標記完成；還沒做完的會留在待辦清單。
+                場次結束時，做完的會標記完成；還沒做完的會留在我的待辦清單。
               </div>
             </div>
           ) : null}
@@ -366,7 +366,7 @@ export function SessionRoom() {
               完成 {completedCount} 件，{remainingCount} 件留到下次
             </h2>
             <p className="mb-5 text-sm leading-[1.7] text-muted">
-              做完的會標記完成；還沒做完的會留在待辦清單，之後可以再安排。
+              做完的會標記完成；還沒做完的會留在我的待辦清單，之後可以再安排。
             </p>
             <div className="mb-5 grid gap-2">
               {tasks.map((task) => (
@@ -377,13 +377,13 @@ export function SessionRoom() {
             </div>
             <div className="flex gap-2">
               <Link className="flex-1 rounded-full bg-terracotta px-4 py-3 text-center text-sm font-bold text-white no-underline hover:bg-terracotta-d" href="/tasks">
-                回待辦清單
+                回我的待辦清單
               </Link>
               <Link
                 className="flex-1 rounded-full border border-border px-4 py-3 text-center text-sm font-bold text-muted no-underline hover:border-muted hover:text-ink"
                 href="/my-sessions"
               >
-                回我的場次
+                回已預約場次
               </Link>
             </div>
           </div>
