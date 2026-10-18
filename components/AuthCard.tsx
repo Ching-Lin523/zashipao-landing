@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { browserAuth } from "@/lib/supabase/browser";
 import { authRedirect } from "@/lib/authRedirect";
 import { Logo } from "./Logo";
+import { PasswordField } from "./PasswordField";
 
 type AuthMode = "login" | "signup";
 
@@ -148,31 +149,21 @@ export function AuthCard({ mode }: AuthCardProps) {
                   required
                 />
               </label>
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-semibold text-ink">密碼</span>
-                <input
-                  className="w-full rounded-xl border-[1.5px] border-border bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-light focus:border-terracotta"
-                  name="password"
-                  autoComplete={isSignup ? "new-password" : "current-password"}
-                  type="password"
-                  placeholder="至少 8 個字元"
-                  minLength={isSignup ? 8 : undefined}
-                  required
-                />
-              </label>
+              <PasswordField
+                label="密碼"
+                name="password"
+                autoComplete={isSignup ? "new-password" : "current-password"}
+                placeholder="至少 8 個字元"
+                minLength={isSignup ? 8 : undefined}
+              />
               {isSignup ? (
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-semibold text-ink">確認密碼</span>
-                  <input
-                    className="w-full rounded-xl border-[1.5px] border-border bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-light focus:border-terracotta"
-                    type="password"
-                    name="confirmPassword"
-                    autoComplete="new-password"
-                    placeholder="再輸入一次密碼"
-                    minLength={8}
-                    required
-                  />
-                </label>
+                <PasswordField
+                  label="確認密碼"
+                  name="confirmPassword"
+                  autoComplete="new-password"
+                  placeholder="再輸入一次密碼"
+                  minLength={8}
+                />
               ) : null}
 
               {!isSignup ? <div className="text-right"><Link href="/forgot-password" className="text-sm font-semibold text-terracotta">忘記密碼？</Link></div> : null}
