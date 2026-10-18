@@ -5,6 +5,9 @@ import { browserAuth } from '@/lib/supabase/browser';
 import { sessionDate, sessionTime } from '@/lib/bookingErrors';
 import { RoomPresence } from './RoomPresence';
 import { Logo } from './Logo';
+import dynamic from 'next/dynamic';
+import { videoRequest } from '@/lib/videoRequest';
+const SessionVideo = dynamic(() => import('./SessionVideo').then(module => module.SessionVideo), { ssr: false });
 import { SessionResult } from './SessionResult';
 type Room = { finished_at?: string | null; title: string; starts_at: string; ends_at: string; server_time: string; tasks: { id: number; title: string; completed: boolean }[] };
 const messages: Record<string, string> = { AUTH_REQUIRED: '請先登入。', PARTICIPATION_ENDED: '你已結束本場，請重新載入查看成果。', BOOKING_REQUIRED: '你尚未預約這場活動。', SESSION_NOT_STARTED: '這場活動尚未開始，請先到等候區。', SESSION_ENDED: '場次已結束，不能再從房間修改待辦。', SESSION_CLOSED: '這場活動已停止開放。', SESSION_NOT_FOUND: '找不到這場活動。', INVALID_TASKS: '這件待辦已不在本場，請重新載入。' };
@@ -63,6 +66,7 @@ export function LiveSessionRoom({ sessionId }: { sessionId: string }) {
           <p className="mt-2 font-mono text-4xl font-bold">{remaining > 0 ? `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2,'0')}` : `${room.tasks.filter(task => task.completed).length} / ${room.tasks.length} 件完成`}</p>
         </div>
         {remaining > 0 ? <RoomPresence sessionId={sessionId} /> : null}
+        <SessionVideo key={sessionId} sessionId={sessionId} />
         <p className="mb-3 text-sm text-muted">完成狀態會同步更新「我的待辦清單」。</p>
         <div className="grid gap-3">{room.tasks.map(task => <label key={task.id} className="flex items-center gap-3 rounded-xl bg-cream p-4">
           <input type="checkbox" className="size-5 accent-forest" checked={task.completed} disabled={finishing || busy !== null || remaining === 0} onChange={async event => {
@@ -85,8 +89,7 @@ export function LiveSessionRoom({ sessionId }: { sessionId: string }) {
             lock.current = true; setFinishing(true); setError('');
             const token = generation.current;
             try {
-              const { error } = await browserAuth().rpc('finish_my_session', { p_session_id: sessionId });
-              if (error) throw error;
+              await videoRequest(sessionId, 'finish');
               if (token === generation.current) setRetry(value => value + 1);
               window.dispatchEvent(new Event('zashipao-bookings-updated'));
             } catch (e) {

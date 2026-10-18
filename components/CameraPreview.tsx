@@ -43,7 +43,7 @@ export function CameraPreview() {
   };
   return <section aria-label="進房前鏡頭預覽" className="my-6 rounded-xl border border-border p-4">
     <h2 className="font-bold">進房前，確認一下鏡頭</h2>
-    <p className="mt-2 text-sm text-muted">這個預覽只有你看得到，不會傳給其他人。多人視訊尚未開放，不開鏡頭也能進房。</p>
+    <p className="mt-2 text-sm text-muted">這個預覽只有你看得到，不會傳給其他人。進房後可另外連接同場視訊，不開鏡頭也能參加。</p>
     <div className="relative mt-4 aspect-video overflow-hidden rounded-xl bg-cream">
       <video ref={video} muted playsInline aria-label="自己的攝影機預覽" className={`h-full w-full -scale-x-100 object-cover ${enabled ? '' : 'invisible'}`} />
       {!enabled ? <p className="absolute inset-0 flex items-center justify-center text-sm text-muted">{pending ? '等待攝影機授權…' : '鏡頭已關閉'}</p> : null}

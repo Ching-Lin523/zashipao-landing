@@ -35,7 +35,7 @@ export function RoomPresence({ sessionId }: { sessionId: string }) {
   return <section aria-label="同房夥伴" className="my-6 rounded-xl border border-border p-4">
     <div className="flex items-center justify-between gap-3"><h2 className="font-bold">同房夥伴</h2>{presence ? <span className="text-sm text-forest">{presence.members.length} / {presence.capacity} 人在線</span> : null}</div>
     {error ? <p role="status" className="mt-3 text-sm text-muted">暫時無法確認在線狀態。<button className="ml-2 text-terracotta underline" onClick={() => setRetry(value => value + 1)}>重試</button></p>
-      : presence ? <ul className="mt-3 flex flex-wrap gap-2">{presence.members.map(member => <li key={member.member_id} className="inline-flex items-center gap-2 rounded-full bg-forest-lt px-3 py-2 text-sm text-forest"><span aria-hidden="true" className="size-2 rounded-full bg-forest" />{member.is_self ? '你' : member.label}</li>)}</ul>
+      : presence ? <ul className="mt-3 flex flex-wrap gap-2">{presence.members.map(member => <li key={member.member_id} className="inline-flex items-center gap-2 rounded-full bg-forest-lt px-3 py-2 text-sm text-forest"><span aria-hidden="true" className="size-2 rounded-full bg-forest" />{member.label}{member.is_self ? '（你）' : ''}</li>)}</ul>
       : <p role="status" className="mt-3 text-sm text-muted">正在確認在線夥伴…</p>}
     <p className="mt-3 text-xs leading-relaxed text-light">顯示本場等候區與房間的在線夥伴，每 15 秒更新。離線狀態約需 1 分鐘確認。</p>
   </section>;
