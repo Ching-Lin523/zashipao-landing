@@ -10,24 +10,34 @@ export function AccountMenu() {
     return () => document.removeEventListener('pointerdown', close);
   }, []);
   const [email, setEmail] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [signedIn, setSignedIn] = useState(false);
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   useEffect(() => {
     const client = browserAuth();
     const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
+      const metadata = session?.user.user_metadata;
+      const displayName = [metadata?.full_name, metadata?.name, metadata?.display_name]
+        .find(value => typeof value === 'string' && value.trim());
+      setName(typeof displayName === 'string' ? displayName.trim() : '');
+      setSignedIn(!!session?.user);
       setEmail(session?.user.email ?? null); setReady(true);
     });
     return () => subscription.unsubscribe();
   }, []);
   if (!ready) return <span className="text-sm text-muted">確認帳號中…</span>;
   return <div className="flex flex-wrap items-center gap-3 text-sm">
-    {email ? <details ref={menu} className="relative" onKeyDown={event => {
+    {signedIn ? <details ref={menu} className="relative" onKeyDown={event => {
       if (event.key === 'Escape' && menu.current) { menu.current.open = false; menu.current.querySelector('summary')?.focus(); }
     }}>
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full border border-border px-4 py-2 font-semibold text-muted hover:bg-white focus-visible:outline-terracotta [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full border border-border px-4 py-2 font-semibold text-forest hover:bg-white focus-visible:outline-terracotta [&::-webkit-details-marker]:hidden">
         <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="8" r="3"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
-        帳號 <span aria-hidden="true" className="text-xs">▾</span>
+        <span className="flex min-w-0 flex-col items-start leading-tight" title={email ?? name}>
+          <span className="text-[10px] font-normal text-forest">已登入</span>
+          <span className="max-w-[180px] truncate max-[480px]:max-w-[120px]">{name || email || '我的帳號'}</span>
+        </span><span aria-hidden="true" className="text-xs">▾</span>
       </summary>
       <div className="absolute right-0 top-full z-50 mt-2 w-64 max-w-[85vw] rounded-2xl border border-border bg-white p-4 shadow-lift">
       <p className="mb-1 text-xs text-light">目前登入帳號</p><p className="mb-4 break-all text-sm text-ink">{email}</p>

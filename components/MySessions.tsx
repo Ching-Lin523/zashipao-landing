@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { browserAuth } from '@/lib/supabase/browser';
 import { bookingError, sessionDate, sessionTime } from '@/lib/bookingErrors';
@@ -9,10 +9,12 @@ import { BookingTaskPicker } from './BookingTaskPicker';
 import { BookedTaskContent } from './BookedTaskContent';
 import { TaskSyncStatus } from './TaskSyncStatus';
 import { AccountMenu } from './AccountMenu';
+import { SessionResult } from './SessionResult';
 
-type Booking = { id: string; session_id: string; sessions: { title: string; starts_at: string; ends_at: string } | null; booking_tasks: { task_id: number }[] };
+type Booking = { session_results: { finished_at?: string | null } | null; id: string; session_id: string; sessions: { title: string; starts_at: string; ends_at: string } | null; booking_tasks: { task_id: number }[] };
 export function MySessions() {
   const [tasks, , sync] = useSharedTasks();
+  const request = useRef(0);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [owner, setOwner] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,19 +25,27 @@ export function MySessions() {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
+  const [view, setView] = useState<'upcoming' | 'past'>('upcoming');
+  const [opened, setOpened] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const load = useCallback(async () => {
+    const token = ++request.current;
     setLoading(true); setError('');
     if (!sync.userId) { setBookings([]); setOwner(null); setLoading(false); return; }
     try {
-      const { data, error } = await browserAuth().from('bookings').select('id,session_id,sessions(title,starts_at,ends_at),booking_tasks(task_id)').eq('user_id', sync.userId).order('created_at', { ascending: false });
+      const { data, error } = await browserAuth().from('bookings').select('id,session_id,sessions(title,starts_at,ends_at),session_results(*),booking_tasks(task_id)').eq('user_id', sync.userId).order('created_at', { ascending: false });
+      if (token !== request.current) return;
       if (error) throw error;
       setBookings(data as unknown as Booking[]); setOwner(sync.userId);
-    } catch { setError('無法讀取預約，請稍後重試。'); }
-    finally { setLoading(false); }
+    } catch { if (token === request.current) setError('無法讀取預約，請稍後重試。'); }
+    finally { if (token === request.current) setLoading(false); }
   }, [sync.userId]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { void load(); window.addEventListener('focus', load); window.addEventListener('zashipao-bookings-updated', load); return () => { ++request.current; window.removeEventListener('focus', load); window.removeEventListener('zashipao-bookings-updated', load); }; }, [load]);
   const visible = owner === sync.userId ? bookings : [];
+  const ended = (booking: Booking) => !!booking.session_results?.finished_at || !!booking.sessions && now !== null && Date.parse(booking.sessions.ends_at) <= now;
+  const upcoming = visible.filter(booking => !ended(booking));
+  const past = visible.filter(ended).sort((a, b) => Date.parse(b.session_results?.finished_at ?? b.sessions?.ends_at ?? '') - Date.parse(a.session_results?.finished_at ?? a.sessions?.ends_at ?? ''));
+  const shown = view === 'past' ? past : upcoming;
   return <main className="min-h-screen bg-cream">
     <header className="border-b border-border bg-cream/95">
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-x-6 gap-y-3 px-[5%] py-4 max-[900px]:grid-cols-[1fr_auto]">
@@ -54,16 +64,26 @@ export function MySessions() {
       <p className="mt-3 text-sm leading-relaxed text-muted">查看你已預約的場次，並確認這次要完成的待辦。</p></div>
       {visible.length > 0 ? <Link href="/sessions" className="rounded-full bg-terracotta px-5 py-3 text-sm font-bold text-white hover:bg-terracotta-d">預約新場次</Link> : null}
     </div>
+    <div className="mb-6 flex gap-2" role="group" aria-label="場次分類">
+      <button aria-pressed={view === 'upcoming'} onClick={() => setView('upcoming')} className={`rounded-full px-5 py-3 text-sm ${view === 'upcoming' ? 'bg-terracotta-lt font-bold text-terracotta' : 'text-muted'}`}>接下來的場次（{upcoming.length}）</button>
+      <button aria-pressed={view === 'past'} onClick={() => setView('past')} className={`rounded-full px-5 py-3 text-sm ${view === 'past' ? 'bg-terracotta-lt font-bold text-terracotta' : 'text-muted'}`}>過往場次（{past.length}）</button>
+    </div>
+    {!loading && !error && view === 'past' && !past.length ? <p className="rounded-2xl bg-white p-8 text-muted">還沒有過往場次，完成一場後就能在這裡查看成果。</p> : null}
     {error ? <p role="alert" className="my-4 text-terracotta">{error} <button className="underline" onClick={() => void load()}>重新載入</button></p> : null}
-    {loading ? <p role="status">正在載入預約…</p> : !error && !visible.length ? <section className="rounded-2xl border border-border bg-white px-6 py-12 text-center">
+    {loading ? <p role="status">正在載入預約…</p> : !error && view === 'upcoming' && !upcoming.length ? <section className="rounded-2xl border border-border bg-white px-6 py-12 text-center">
       <svg aria-hidden="true" className="mx-auto mb-5 size-10 text-forest" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 11h18M9 16h6"/></svg>
       <h2 className="font-serif text-2xl font-bold">留一段時間，給一直想完成的事</h2>
       <p className="mt-3 text-sm leading-relaxed text-muted">你還沒有預約場次。挑一個適合的時段，帶一件待辦一起來。</p>
       <Link href="/sessions" className="mt-6 inline-flex min-h-11 items-center rounded-full bg-terracotta px-6 py-3 text-sm font-bold text-white hover:bg-terracotta-d">選擇場次 →</Link>
     </section> : null}
     {sync.error ? <TaskSyncStatus /> : null}
-    <div className="grid gap-4">{visible.map(booking => {
+    <div className="grid gap-4">{shown.map(booking => {
       const session = booking.sessions;
+      if (view === 'past') return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-2xl border border-border bg-white p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-xl font-bold">{session?.title ?? '過往場次'}</h2>{session ? <p className="mt-2 text-sm text-muted">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}</p> : null}</div>
+        <button aria-expanded={opened === booking.id} onClick={() => setOpened(opened === booking.id ? null : booking.id)} className="rounded-full border border-border px-5 py-3 text-sm">{opened === booking.id ? '收起成果' : '查看成果'}</button></div>
+        {opened === booking.id ? <div className="mt-6 border-t border-border pt-6"><SessionResult sessionId={booking.session_id} /></div> : null}
+      </article>;
       const started = !session || (now !== null && Date.parse(session.starts_at) <= now);
       return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-2xl border border-border bg-white p-6">
         <h2 className="text-xl font-bold">{session?.title ?? '場次已停止公開'}</h2>

@@ -26,4 +26,4 @@ export async function middleware(request: NextRequest) {
   response.headers.set('Cache-Control', 'private, no-store');
   return response;
 }
-export const config = { matcher: ['/', '/login', '/signup', '/tasks', '/my-sessions', '/sessions/:path*'] };
+export const config = { matcher: ['/', '/login', '/signup', '/forgot-password', '/reset-password', '/tasks', '/my-sessions', '/sessions/:path*'] };

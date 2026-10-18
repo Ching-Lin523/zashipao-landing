@@ -5,6 +5,7 @@ import { browserAuth } from '@/lib/supabase/browser';
 import { sessionDate, sessionTime } from '@/lib/bookingErrors';
 import { RoomPresence } from './RoomPresence';
 import { Logo } from './Logo';
+import { CameraPreview } from './CameraPreview';
 type Waiting = { id: string; title: string; starts_at: string; ends_at: string; server_time: string; tasks: { id: number; title: string; completed: boolean }[] };
 export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
   const [data, setData] = useState<Waiting | null>(null);
@@ -22,7 +23,7 @@ export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
         const { data, error } = await browserAuth().rpc('get_waiting_session', { p_session_id: sessionId });
         if (!active) return;
         if (error) {
-          const copy: Record<string, string> = { AUTH_REQUIRED: '請先登入。', BOOKING_REQUIRED: '你尚未預約這場活動。', WAITING_NOT_OPEN: '等候區會在活動開始前五分鐘開放。', SESSION_ENDED: '這場活動已結束。', SESSION_CLOSED: '這場活動已停止開放。', SESSION_NOT_FOUND: '找不到這場活動。' };
+          const copy: Record<string, string> = { AUTH_REQUIRED: '請先登入。', PARTICIPATION_ENDED: '你已提前結束本場，可返回已預約場次查看成果。', BOOKING_REQUIRED: '你尚未預約這場活動。', WAITING_NOT_OPEN: '等候區會在活動開始前五分鐘開放。', SESSION_ENDED: '這場活動已結束。', SESSION_CLOSED: '這場活動已停止開放。', SESSION_NOT_FOUND: '找不到這場活動。' };
           setData(null); reference = null;
           setMessage(copy[error.message] ?? '暫時無法載入等候區，請稍後重試。'); return;
         }
@@ -57,6 +58,7 @@ export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
         <h1 className="mt-3 font-serif text-3xl font-black">{data.title}</h1>
         <p className="mt-3 text-sm text-muted">{sessionDate(data.starts_at)} · {sessionTime(data.starts_at)}–{sessionTime(data.ends_at)}（台灣時間）</p>
         <p className="my-6 rounded-xl bg-forest-lt p-4 text-forest">{seconds > 0 ? `距離開場 ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '已到開場時間，可以進入房間了。'}</p>
+        <CameraPreview key={sessionId} />
         {seconds === 0 ? <Link href={`/sessions/room/${sessionId}`} className="mb-6 inline-flex rounded-full bg-terracotta px-6 py-3 font-bold text-white">進入房間</Link> : null}
         <RoomPresence sessionId={sessionId} />
         <h2 className="mb-3 font-bold">這場要完成的待辦</h2>

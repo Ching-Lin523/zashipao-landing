@@ -1,5 +1,6 @@
+import { PersonalHomeSession } from "./PersonalHomeSession";
 import { ButtonLink } from "./ButtonLink";
-import { HomeSessionCard, HomeSessionCardProps } from "./HomeSessionCard";
+import { HomeSessionCardProps } from "./HomeSessionCard";
 
 export function Hero(props: HomeSessionCardProps) {
   return (
@@ -27,13 +28,13 @@ export function Hero(props: HomeSessionCardProps) {
               免費加入，今天就開始
             </ButtonLink>
             <ButtonLink href="#sessions" variant="outline" className="px-6 py-[.7rem] text-[.95rem]">
-              看今日場次 →
+              看可預約場次 →
             </ButtonLink>
           </div>
 
         </div>
 
-        <HomeSessionCard {...props} />
+        <PersonalHomeSession {...props} />
       </div>
     </section>
   );

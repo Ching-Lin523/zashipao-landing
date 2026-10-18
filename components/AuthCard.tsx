@@ -169,6 +169,7 @@ export function AuthCard({ mode }: AuthCardProps) {
                 </label>
               ) : null}
 
+              {!isSignup ? <div className="text-right"><Link href="/forgot-password" className="text-sm font-semibold text-terracotta">忘記密碼？</Link></div> : null}
               <button
                 type="submit"
                 disabled={busy}
