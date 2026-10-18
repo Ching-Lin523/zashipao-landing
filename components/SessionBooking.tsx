@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useSharedTasks } from "./useSharedTasks";
+import { saveBooking } from "./bookingStore";
+import { TaskSyncStatus } from "./TaskSyncStatus";
 import { Logo } from "./Logo";
 
 type Priority = "now" | "soon" | "quick" | "later" | "split";
@@ -87,49 +90,6 @@ function getSpots(templateIndex: number, dateOffset: number) {
   return `${taken} / 5 人`;
 }
 
-const initialTasks: BookableTask[] = [
-  {
-    id: 1,
-    title: "補齊所得稅延期申報資料",
-    category: "財務",
-    priority: "now",
-    deadline: "2026-05-24",
-    source: "list"
-  },
-  {
-    id: 2,
-    title: "更新護照照片預約",
-    category: "文件行政",
-    priority: "soon",
-    deadline: "2026-06-05",
-    source: "list"
-  },
-  {
-    id: 3,
-    title: "退 iHerb 重複訂單",
-    category: "購物退款",
-    priority: "soon",
-    deadline: "2026-05-20",
-    source: "list"
-  },
-  {
-    id: 4,
-    title: "預約牙醫洗牙",
-    category: "健康醫療",
-    priority: "quick",
-    deadline: "2026-05-30",
-    source: "list"
-  },
-  {
-    id: 5,
-    title: "研究媽媽保單內容並做摘要",
-    category: "家庭行政",
-    priority: "split",
-    deadline: "2026-05-28",
-    source: "list"
-  }
-];
-
 const priorityStyle: Record<Priority, { label: string; className: string; sort: number }> = {
   now: { label: "快到期", className: "bg-terracotta-lt text-terracotta", sort: 1 },
   soon: { label: "快到期", className: "bg-terracotta-lt text-terracotta", sort: 1 },
@@ -148,8 +108,17 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
   const [step, setStep] = useState<BookingStep>(initialStep);
   const [selectedSessionId, setSelectedSessionId] = useState(`${sessionTemplates[0].id}-0`);
   const [selectedDateOffset, setSelectedDateOffset] = useState(0);
-  const [tasks, setTasks] = useState(initialTasks);
-  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([1, 4]);
+  const [sharedTasks, setSharedTasks] = useSharedTasks();
+  const tasks: BookableTask[] = sharedTasks.filter(task => !task.completed && !task.archived).map(task => ({
+    id: task.id, title: task.title, category: "待辦", deadline: task.deadline,
+    priority: "quick", source: "list"
+  }));
+  const [bookingError, setBookingError] = useState("");
+  useEffect(() => {
+    const selected = new URLSearchParams(window.location.search).get("tasks");
+    if (selected !== null) setSelectedTaskIds([...new Set(selected.split(",").map(Number).filter(Number.isSafeInteger))]);
+  }, []);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
   const [adHocTitle, setAdHocTitle] = useState("");
   const [confirmed, setConfirmed] = useState(false);
 
@@ -189,7 +158,7 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
     setStep("commitment");
   }
 
-function addAdHocTask(event: FormEvent<HTMLFormElement>) {
+async function addAdHocTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedTitle = adHocTitle.trim();
     if (!trimmedTitle) return;
@@ -203,7 +172,7 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
       source: "adHoc"
     };
 
-    setTasks((current) => [task, ...current]);
+    if (!await setSharedTasks(current => [{ id: task.id, title: task.title, deadline: "", firstNoticed: new Date().toISOString().slice(0, 10) }, ...current])) return;
     setSelectedTaskIds((current) => [task.id, ...current]);
     setAdHocTitle("");
     setConfirmed(false);
@@ -233,19 +202,20 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
           <Logo />
           <nav className="flex items-center gap-3 text-sm">
             <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/my-sessions">
-              我的場次
+              已預約場次
             </Link>
             <Link className="rounded-full bg-terracotta-lt px-4 py-2 font-bold text-terracotta no-underline" href="/sessions">
-              預約場次
+              可預約場次
             </Link>
             <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/tasks">
-              待辦清單
+              我的待辦清單
             </Link>
           </nav>
         </div>
       </header>
 
       <div className="mx-auto max-w-6xl px-[5%] py-8">
+        <TaskSyncStatus />
         <div className="mb-6 flex gap-2 text-sm">
           <span className={`rounded-full px-3 py-1.5 font-bold ${step === "sessions" ? "bg-terracotta text-white" : "bg-terracotta-lt text-terracotta"}`}>
             1 選場次
@@ -258,6 +228,7 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
         {step === "sessions" ? (
           <>
             <section className="mb-6">
+              {selectedTasks.length > 0 ? <p className="mb-3 rounded-xl bg-forest-lt p-3 text-sm text-forest">已帶入 {selectedTasks.length} 件待辦，選好時段後可再次確認。</p> : null}
               <div>
                 <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">先選你要出現的時間</h1>
                 <p className="mt-2 max-w-[650px] text-[.96rem] leading-[1.7] text-muted">
@@ -346,7 +317,7 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
               </form>
 
               <div className="grid gap-2">
-                <div className="mb-1 text-sm font-bold text-muted">或從待辦清單選</div>
+                <div className="mb-1 text-sm font-bold text-muted">或從我的待辦清單選</div>
                 {sortedTasks.map((task) => {
                   const checked = selectedTaskIds.includes(task.id);
                   const priority = priorityStyle[task.priority];
@@ -410,15 +381,23 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
                 </div>
               ) : (
                 <div className="mb-4 rounded-xl border border-forest/20 bg-forest-lt p-3 text-sm leading-[1.6] text-forest">
-                  系統會把這些事項記在本場預約裡。預約後，可隨時到「我的場次」編輯待辦事項。
+                  系統會把這些事項記在本場預約裡。預約後，可隨時到「已預約場次」編輯待辦事項。
                 </div>
               )}
 
+              {bookingError ? <p role="alert" className="mb-3 text-sm text-terracotta">{bookingError}</p> : null}
               <button
                 className="w-full rounded-full bg-terracotta px-5 py-3 text-sm font-bold text-white transition-all hover:-translate-y-px hover:bg-terracotta-d disabled:cursor-not-allowed disabled:bg-light"
-                disabled={!selectedTaskIds.length}
+                disabled={!selectedTasks.length}
                 type="button"
-                onClick={() => setConfirmed(true)}
+                onClick={() => {
+                  try {
+                    const date = new Date(); date.setDate(date.getDate() + selectedDateOffset);
+                    const day = date.getFullYear() + "/" + String(date.getMonth()+1).padStart(2,"0") + "/" + String(date.getDate()).padStart(2,"0") + "（" + weekdayFormatter.format(date) + "）";
+                    saveBooking({ id: "booking-" + day.slice(0,10).replaceAll("/", "-") + "-" + selectedSession.time.replace(":", ""), title: selectedSession.title, date: day, time: selectedSession.time + " - " + selectedSession.endTime, taskIds: selectedTasks.map(t => t.id), tasks: selectedTasks.map(t => t.title), status: "尚未開放", canEnterWaiting: false });
+                    setBookingError(""); setConfirmed(true);
+                  } catch { setBookingError("無法儲存預約，請確認瀏覽器允許本機儲存後重試。"); }
+                }}
               >
                 確認預約
               </button>
@@ -437,7 +416,7 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
               {selectedSession.day} {selectedSession.time} - {selectedSession.endTime}
             </h2>
             <p className="mb-4 text-sm leading-[1.7] text-muted">
-              這場會帶著 {selectedTasks.length} 件雜事進場。預約後，可隨時到「我的場次」編輯待辦事項。
+              這場會帶著 {selectedTasks.length} 件雜事進場。預約後，可隨時到「已預約場次」編輯待辦事項。
             </p>
             <div className="mb-5 grid gap-2">
               {selectedTasks.map((task) => (
@@ -451,13 +430,13 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
                 className="flex-1 rounded-full bg-terracotta px-4 py-3 text-center text-sm font-bold text-white no-underline hover:bg-terracotta-d"
                 href="/my-sessions"
               >
-                查看我的場次
+                查看已預約場次
               </Link>
               <Link
                 className="flex-1 rounded-full border border-border px-4 py-3 text-center text-sm font-bold text-muted no-underline hover:border-muted hover:text-ink"
                 href="/tasks"
               >
-                整理待辦清單
+                整理我的待辦清單
               </Link>
             </div>
             <a className="mt-3 block text-center text-sm font-bold text-light no-underline hover:text-muted" href={getGoogleCalendarUrl()} target="_blank" rel="noreferrer">

@@ -2,76 +2,8 @@ import { SessionAvailability } from "./SessionAvailability";
 import { ButtonLink } from "./ButtonLink";
 import { SectionHeading } from "./SectionHeading";
 
-const sessions = [
-  {
-    time: "21:00",
-    day: "今晚 · 進行中",
-    title: "晚間雜事衝刺 #3",
-    live: true,
-    tags: [
-      ["文件行政", "bg-lavender-lt text-lavender"],
-      ["健康醫療", "bg-forest-lt text-forest"],
-      ["其他", "bg-cream-dd text-muted"]
-    ],
-    bookedCount: 4,
-    cta: "立即加入",
-    href: "/login"
-  },
-  {
-    time: "22:00",
-    day: "今晚",
-    title: "睡前雜事清空場",
-    live: false,
-    tags: [
-      ["財務", "bg-terracotta-lt text-terracotta"],
-      ["購物退款", "bg-cream-dd text-muted"]
-    ],
-    bookedCount: 3,
-    cta: "預約",
-    href: "/login"
-  },
-  {
-    time: "07:00",
-    day: "明日早晨",
-    title: "晨間衝刺 — 出門前做一件事",
-    live: false,
-    tags: [
-      ["文件行政", "bg-lavender-lt text-lavender"],
-      ["家務", "bg-amberish-lt text-amberish"]
-    ],
-    bookedCount: 2,
-    cta: "預約",
-    href: "/login"
-  },
-  {
-    time: "12:00",
-    day: "明日午休",
-    title: "午休 50 分鐘 · 生活行政快攻",
-    live: false,
-    tags: [
-      ["健康醫療", "bg-forest-lt text-forest"],
-      ["財務", "bg-terracotta-lt text-terracotta"]
-    ],
-    bookedCount: 4,
-    cta: "預約",
-    href: "/login"
-  },
-  {
-    time: "10:00",
-    day: "週六早晨",
-    title: "週末雜事大清倉 ✦ 每房最多 5 人",
-    live: false,
-    tags: [
-      ["家務", "bg-amberish-lt text-amberish"],
-      ["文件", "bg-lavender-lt text-lavender"],
-      ["醫療", "bg-forest-lt text-forest"],
-      ["財務", "bg-terracotta-lt text-terracotta"]
-    ],
-    bookedCount: 4,
-    cta: "預約",
-    href: "/login"
-  }
-] as const;
+import type { HomeSession } from "./HomeSessionCard";
+import { sessionDate, sessionTime } from "@/lib/bookingErrors";
 
 const delays = [
   {
@@ -116,65 +48,37 @@ const delays = [
   }
 ];
 
-export function Sessions() {
+export function Sessions({ sessions, loadError = false }: { sessions: HomeSession[]; loadError?: boolean }) {
   return (
     <section id="sessions" className="px-[6%] py-22">
       <div className="mx-auto max-w-6xl">
         <div className="mb-7 flex items-end justify-between gap-4 max-[720px]:items-start">
           <div>
-            <div className="mb-3 text-xs font-bold uppercase tracking-[.1em] text-terracotta">今日場次</div>
-            <h2 className="m-0 font-serif text-3xl font-black leading-tight">今天就可以開始</h2>
+            <div className="mb-3 text-xs font-bold uppercase tracking-[.1em] text-terracotta">即將開始的場次</div>
+            <h2 className="m-0 font-serif text-3xl font-black leading-tight">挑一段時間，一起開始</h2>
           </div>
-          <ButtonLink href="/login" variant="outline" className="px-5 py-2">
+          <ButtonLink href="/sessions" variant="outline" className="px-5 py-2">
             查看所有場次
           </ButtonLink>
         </div>
 
         <div className="rv flex flex-col gap-3">
-          {sessions.map((session) => (
-            <div
-              className={`flex cursor-pointer items-center gap-6 rounded-xl border-[1.5px] p-5 transition-all duration-200 hover:border-terracotta hover:shadow-soft max-[780px]:grid max-[780px]:grid-cols-[auto_1fr] max-[780px]:gap-4 ${
-                session.live ? "border-forest bg-forest-lt" : "border-border bg-white"
-              }`}
-              key={`${session.time}-${session.title}`}
-            >
-              <div className="min-w-[55px] text-center">
-                <div className={`font-serif text-lg font-bold leading-none ${session.live ? "text-forest" : "text-ink"}`}>{session.time}</div>
-                <div className="mt-1 text-xs text-light">{session.day}</div>
+          {loadError ? <p role="alert" className="rounded-xl bg-white p-5 text-muted">場次暫時無法載入，請稍後重新整理或查看所有場次。</p> : !sessions.length ? <p className="rounded-xl bg-white p-5 text-muted">目前沒有開放場次，請稍後再來看看。</p> : sessions.map(session => (
+            <article key={session.bookingHref} className="flex flex-wrap items-center gap-6 rounded-xl border-[1.5px] border-border bg-white p-5">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-muted">{sessionDate(session.startsAt)}（台灣時間）</p>
+                <h3 className="mt-2 text-lg font-bold">{session.title}</h3>
+                <p className="mt-2 text-sm text-muted">{sessionTime(session.startsAt)}–{sessionTime(session.endsAt)}</p>
               </div>
-              <div className="h-10 w-px bg-border max-[780px]:hidden" />
-              <div className="flex-1 max-[780px]:col-span-2">
-                <h3 className="mb-1.5 text-sm font-semibold">
-                  {session.title}{" "}
-                  {session.live ? (
-                    <span className="rounded border border-forest/25 bg-forest-lt px-2 py-0.5 text-xs font-bold text-forest">直播中</span>
-                  ) : null}
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {session.tags.map(([tag, className]) => (
-                    <span className={`rounded px-2 py-0.5 text-[.68rem] font-medium ${className}`} key={tag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="min-w-[90px] text-right max-[780px]:text-left">
-                <SessionAvailability bookedCount={session.bookedCount} />
-              </div>
-              <ButtonLink
-                href={session.href}
-                variant={session.live ? "primary" : "outline"}
-                className="shrink-0 px-5 py-2 text-xs max-[780px]:justify-center"
-              >
-                {session.cta}
-              </ButtonLink>
-            </div>
+              <SessionAvailability bookedCount={session.bookedCount ?? 0} capacity={session.capacity} />
+              {(session.bookedCount ?? 0) >= (session.capacity ?? 5) ? <button disabled className="rounded-full border border-border px-5 py-2 text-sm text-light">已額滿</button> : <ButtonLink href={session.bookingHref} variant="outline" className="px-5 py-2 text-sm">預約</ButtonLink>}
+            </article>
           ))}
         </div>
 
         <div className="rv mt-10 rounded-xl2 border-[1.5px] border-border bg-white px-9 py-8">
           <div className="mb-6">
-            <div className="mb-1 font-serif text-xl font-bold">你的雜事，到底拖了多久？</div>
+            <div className="mb-1 font-serif text-xl font-bold">你的雜事，到底拖了多久？（功能示意）</div>
             <div className="text-sm text-muted">雜事房替你記錄每一件事的「誕生日」，讓拖延指數一目瞭然</div>
           </div>
           <div className="flex flex-col gap-3.5">

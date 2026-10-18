@@ -5,8 +5,8 @@ const steps = [
     number: "1",
     icon: "✍️",
     iconClass: "bg-terracotta-lt",
-    title: "帶一件拖很久的雜事進來",
-    description: "不是大專案，也不是工作 KPI。就是那種不急、但每次想到都覺得煩的小事。",
+    title: "帶一件一直拖著的事情進來",
+    description: "不用是什麼大事。整理照片、預約看診、處理退貨，或任何一件心頭上的待辦事項",
     details: ["你只需要決定：這場想處理哪一件。", "不用先想清楚完整計畫，先進來開始就好。"]
   },
   {
@@ -33,7 +33,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           label="怎麼運作"
-          title="替那些沒有 deadline 的事，安排一段真的會開始的時間"
+          title="替那些一直拖著沒做的事，安排一段真的會開始的時間"
           subtitle="雜事房不是要你變成時間管理達人。它只是把一件你一直拖著的生活雜事，放進一場 50 分鐘、有人一起開始的線上共做。"
         />
         <div className="relative mt-12 grid grid-cols-3 gap-6 max-[900px]:grid-cols-1">

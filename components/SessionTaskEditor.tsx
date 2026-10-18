@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useSharedTasks } from "./useSharedTasks";
-import { readTasks, writeTasks } from "./taskStore";
+import { TaskSyncStatus } from "./TaskSyncStatus";
 
 export function SessionTaskEditor({ sessionId, initialTasks }: { sessionId: string; initialTasks: string[] }) {
-  const [tasks] = useSharedTasks();
+  const [tasks, setTasks, sync] = useSharedTasks();
   const [ids, setIds] = useState<number[]>([]);
   const [draft, setDraft] = useState<number[] | null>(null);
   const [picker, setPicker] = useState(false);
@@ -22,29 +22,20 @@ export function SessionTaskEditor({ sessionId, initialTasks }: { sessionId: stri
       } else {
         const legacy: unknown = JSON.parse(localStorage.getItem(`zashipao:session-tasks:${sessionId}`) ?? "null");
         const titles = Array.isArray(legacy) && legacy.every(t => typeof t === "string") ? legacy as string[] : initialTasks;
-        const all = [...readTasks()];
-        const selected = titles.map(text => {
-          let task = all.find(t => t.title === text);
-          if (!task) {
-            task = { id: Math.max(Date.now(), ...all.map(t => t.id + 1)), title: text, deadline: "", firstNoticed: new Date().toISOString().slice(0, 10) };
-            all.push(task);
-          }
-          return task.id;
-        });
-        writeTasks(all);
-        localStorage.setItem(storageKey, JSON.stringify(selected));
+        const selected = tasks.filter(task => titles.includes(task.title)).map(task => task.id);
         setIds(selected);
       }
-    } catch { setIds(readTasks().filter(t => initialTasks.includes(t.title)).map(t => t.id)); }
+    } catch { setIds(tasks.filter(t => initialTasks.includes(t.title)).map(t => t.id)); }
     setReady(true);
-  }, [storageKey, sessionId, initialTasks]);
+  }, [storageKey, sessionId, initialTasks, tasks]);
 
   const selected = (draft ?? ids).map(id => tasks.find(task => task.id === id)).filter(task => task !== undefined);
   const available = tasks.filter(task => !task.completed && !task.archived);
   const button = "rounded-full border border-border px-4 py-2 text-sm font-bold text-muted hover:border-terracotta";
 
   return (
-    <div className="mt-3 grid gap-2">
+    <fieldset disabled={sync.loading || sync.saving || !!sync.error || !sync.userId} className="mt-3 grid min-w-0 gap-2">
+      <TaskSyncStatus />
       <div className="text-xs font-bold text-light">這場要做的事</div>
       {selected.map(task => (
         <div className="flex items-center justify-between gap-2 rounded-xl bg-cream px-3 py-2 text-sm font-semibold text-muted" key={task.id}>
@@ -59,7 +50,7 @@ export function SessionTaskEditor({ sessionId, initialTasks }: { sessionId: stri
           <button type="button" className="justify-self-start py-2 text-sm font-bold text-terracotta" aria-expanded={picker} onClick={() => setPicker(!picker)}>＋ 加入或新增事項</button>
           {picker ? (
             <div className="grid gap-3 rounded-xl border border-border p-3">
-              <h3 className="text-sm font-bold">從待辦清單加入</h3>
+              <h3 className="text-sm font-bold">從我的待辦清單加入</h3>
               <div className="grid max-h-60 gap-2 overflow-y-auto">
                 {available.map(task => (
                   <label className="flex items-center gap-2 rounded-lg bg-cream p-2 text-sm" key={task.id}>
@@ -70,17 +61,17 @@ export function SessionTaskEditor({ sessionId, initialTasks }: { sessionId: stri
                 ))}
                 {!available.length ? <p className="text-sm text-muted">目前沒有未完成待辦，可以先建立一件。</p> : null}
               </div>
-              <form className="grid gap-2 border-t border-border pt-3" onSubmit={event => {
+              <form className="grid gap-2 border-t border-border pt-3" onSubmit={async event => {
                 event.preventDefault();
                 if (!title.trim()) return;
                 try {
-                  const all = readTasks();
+                  const all = tasks;
                   const id = Math.max(Date.now(), ...all.map(task => task.id + 1));
                   const today = new Date().toISOString().slice(0, 10);
-                  writeTasks([...all, { id, title: title.trim(), firstNoticed: today, deadline: "" }]);
+                  if (!await setTasks([...all, { id, title: title.trim(), firstNoticed: today, deadline: "" }])) return;
                   setDraft([...draft, id]);
                   setTitle("");
-                  setNotice("新待辦已加入待辦清單，也已選進本場。");
+                  setNotice("新待辦已加入我的待辦清單，也已選進本場。");
                 } catch { setNotice("無法儲存新待辦，請確認瀏覽器允許本機儲存。"); }
               }}>
                 <label className="text-sm font-bold" htmlFor={`new-task-${sessionId}`}>或新增一件事</label>
@@ -89,7 +80,7 @@ export function SessionTaskEditor({ sessionId, initialTasks }: { sessionId: stri
               </form>
             </div>
           ) : null}
-          <p className="text-xs text-muted">從本場移除後，事項仍會保留在待辦清單裡。</p>
+          <p className="text-xs text-muted">從本場移除後，事項仍會保留在我的待辦清單裡。</p>
           <div className="flex gap-2">
             <button type="button" disabled={!selected.length} className="rounded-full bg-terracotta px-4 py-2 text-sm font-bold text-white disabled:opacity-40" onClick={() => {
               try {
@@ -104,6 +95,6 @@ export function SessionTaskEditor({ sessionId, initialTasks }: { sessionId: stri
         </>
       )}
       <p role="status" className="text-xs text-muted">{notice}</p>
-    </div>
+    </fieldset>
   );
 }
