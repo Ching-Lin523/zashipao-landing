@@ -47,7 +47,7 @@ export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
     window.addEventListener('focus', refresh);
     const { data: { subscription } } = browserAuth().auth.onAuthStateChange((event) => {
       if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") return;
-      if (active) { setData(null); reference = null; setRetry(value => value + 1); }
+      if (active) { active = false; setData(null); reference = null; setRetry(value => value + 1); }
     });
     return () => { active = false; clearInterval(poll); clearInterval(clock); window.removeEventListener('focus', refresh); subscription.unsubscribe(); };
   }, [sessionId, retry]);

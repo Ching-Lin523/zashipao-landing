@@ -3,6 +3,7 @@ export function bookingError(message: string) {
     AUTH_REQUIRED: '請先登入後再預約。', SESSION_NOT_FOUND: '找不到這場活動。',
     SESSION_CLOSED: '這場活動已開始或已停止預約，請選擇其他場次。',
     SESSION_FULL: '這場剛剛額滿了，請選擇其他場次。', ALREADY_BOOKED: '你已預約這場，請到「已預約場次」查看。',
+    BOOKING_TIME_CONFLICT: '這個時段與你已預約的場次重疊，請選其他時間，或先取消原預約。',
     TASKS_REQUIRED: '請至少選擇一件待辦。', INVALID_TASKS: '部分待辦已完成、封存或移除，請重新整理再選擇。',
     BOOKING_NOT_FOUND: '找不到這筆預約，請重新整理確認。', SESSION_STARTED: '場次已開始，無法取消預約。'
   };
