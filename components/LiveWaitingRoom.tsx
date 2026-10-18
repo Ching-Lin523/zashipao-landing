@@ -5,6 +5,7 @@ import { browserAuth } from '@/lib/supabase/browser';
 import { sessionDate, sessionTime } from '@/lib/bookingErrors';
 import { RoomPresence } from './RoomPresence';
 import { Logo } from './Logo';
+import { NicknameEditor } from './NicknameEditor';
 import { CameraPreview } from './CameraPreview';
 type Waiting = { id: string; title: string; starts_at: string; ends_at: string; server_time: string; tasks: { id: number; title: string; completed: boolean }[] };
 export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
@@ -58,6 +59,7 @@ export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
         <h1 className="mt-3 font-serif text-3xl font-black">{data.title}</h1>
         <p className="mt-3 text-sm text-muted">{sessionDate(data.starts_at)} · {sessionTime(data.starts_at)}–{sessionTime(data.ends_at)}（台灣時間）</p>
         <p className="my-6 rounded-xl bg-forest-lt p-4 text-forest">{seconds > 0 ? `距離開場 ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '已到開場時間，可以進入房間了。'}</p>
+        <NicknameEditor />
         <CameraPreview key={sessionId} />
         {seconds === 0 ? <Link href={`/sessions/room/${sessionId}`} className="mb-6 inline-flex rounded-full bg-terracotta px-6 py-3 font-bold text-white">進入房間</Link> : null}
         <RoomPresence sessionId={sessionId} />

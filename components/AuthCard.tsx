@@ -55,16 +55,21 @@ export function AuthCard({ mode }: AuthCardProps) {
     if (busy) return;
     const form = new FormData(event.currentTarget);
     const email = String(form.get('email') ?? '').trim();
+    const nickname = String(form.get('nickname') ?? '').trim();
     const password = String(form.get('password') ?? '');
     setMessage(''); setFailed(false);
     if (isSignup && password !== form.get('confirmPassword')) {
       setFailed(true); setMessage('兩次輸入的密碼不一致。'); return;
+    }
+    if (isSignup && (Array.from(nickname).length > 24 || /[\u0000-\u001f\u007f]/.test(nickname))) {
+      setFailed(true); setMessage('暱稱限 24 個字，不能包含換行或控制字元。'); return;
     }
     setBusy(true);
     try {
       const client = browserAuth();
       const result = isSignup
         ? await client.auth.signUp({ email, password, options: {
+            data: { nickname },
             emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath ?? '/sessions')}`
           } })
         : await client.auth.signInWithPassword({ email, password });
@@ -131,6 +136,7 @@ export function AuthCard({ mode }: AuthCardProps) {
             </div>
 
             <form className="space-y-4" onSubmit={handleSubmit}>
+              {isSignup ? <label className="block"><span className="mb-1.5 block text-sm font-semibold text-ink">暱稱（選填）</span><input name="nickname" autoComplete="nickname" placeholder="例如：小晴" className="w-full rounded-xl border-[1.5px] border-border bg-cream px-4 py-3 text-base" /><span className="mt-2 block text-xs text-muted">同場夥伴會看到這個名字。也可以之後在等候區設定。</span></label> : null}
               <label className="block">
                 <span className="mb-1.5 block text-sm font-semibold text-ink">Email</span>
                 <input

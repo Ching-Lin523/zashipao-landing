@@ -11,6 +11,10 @@ export function AccountMenu() {
   }, []);
   const [email, setEmail] = useState<string | null>(null);
   const [name, setName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const savingLock = useRef(false);
   const [signedIn, setSignedIn] = useState(false);
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -19,8 +23,9 @@ export function AccountMenu() {
     const client = browserAuth();
     const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
       const metadata = session?.user.user_metadata;
-      const displayName = [metadata?.full_name, metadata?.name, metadata?.display_name]
+      const displayName = [metadata?.nickname, metadata?.full_name, metadata?.name, metadata?.display_name]
         .find(value => typeof value === 'string' && value.trim());
+      setNickname(typeof metadata?.nickname === 'string' ? metadata.nickname : '');
       setName(typeof displayName === 'string' ? displayName.trim() : '');
       setSignedIn(!!session?.user);
       setEmail(session?.user.email ?? null); setReady(true);
@@ -41,7 +46,25 @@ export function AccountMenu() {
       </summary>
       <div className="absolute right-0 top-full z-50 mt-2 w-64 max-w-[85vw] rounded-2xl border border-border bg-white p-4 shadow-lift">
       <p className="mb-1 text-xs text-light">目前登入帳號</p><p className="mb-4 break-all text-sm text-ink">{email}</p>
-      <button disabled={busy} className="rounded-full border border-border px-4 py-2" onClick={async () => {
+      <form className="mb-4 border-b border-border pb-4" onSubmit={async event => {
+        event.preventDefault();
+        if (savingLock.current || busy) return;
+        const value = nickname.trim();
+        if (Array.from(value).length > 24 || /[\u0000-\u001f\u007f]/.test(value)) { setError('暱稱限 24 個字，不能包含換行或控制字元。'); return; }
+        savingLock.current = true; setSaving(true); setSaved(false); setError('');
+        try {
+          const { error } = await browserAuth().auth.updateUser({ data: { nickname: value } });
+          if (error) throw error;
+          setSaved(true);
+        } catch { setError('暱稱儲存失敗，請稍後重試。'); }
+        finally { savingLock.current = false; setSaving(false); }
+      }}>
+        <label className="grid gap-2">房間暱稱<input value={nickname} disabled={saving || busy} onChange={event => { setNickname(event.target.value); setSaved(false); }} className="min-w-0 rounded-lg border border-border px-3 py-2 text-ink" placeholder="例如：小晴" /></label>
+        <p className="my-2 text-xs leading-relaxed text-muted">同場夥伴會看到這個名字。留空則使用夥伴編號。</p>
+        <button disabled={saving || busy} className="rounded-full bg-forest px-4 py-2 text-white disabled:opacity-50">{saving ? '儲存中…' : '儲存暱稱'}</button>
+        {saved ? <p role="status" className="mt-2 text-xs text-forest">已儲存，下次連接視訊時會使用新暱稱。</p> : null}
+      </form>
+      <button disabled={busy || saving} className="rounded-full border border-border px-4 py-2" onClick={async () => {
         setBusy(true); setError('');
         try {
           const { error } = await browserAuth().auth.signOut({ scope: 'local' });
