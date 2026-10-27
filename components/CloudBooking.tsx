@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { AddToCalendar } from './AddToCalendar';
 import { browserAuth } from '@/lib/supabase/browser';
 import { bookingError, sessionDate, sessionTime } from '@/lib/bookingErrors';
 import type { PublicSession } from '@/lib/publicSessions';
@@ -20,9 +20,16 @@ export function CloudBooking({ session, initialIds }: { session: PublicSession; 
   const [adding, setAdding] = useState(false);
   const [notice, setNotice] = useState('');
   const addLock = useRef(false);
-  const router = useRouter();
+  const [confirmed, setConfirmed] = useState<string | null>(null);
   const available = tasks.filter(t => !t.completed && !t.archived);
   const selected = available.filter(t => ids.includes(t.id));
+  if (confirmed) return <main className="min-h-screen bg-cream px-[5%] py-8"><div className="mx-auto max-w-3xl"><Logo /><section className="mt-8 rounded-2xl border border-border bg-white p-6">
+    <h1 className="font-serif text-3xl font-black">預約成功</h1>
+    <h2 className="mt-4 text-xl font-bold">{session.title}</h2>
+    <p className="mt-2 text-muted">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}（台灣時間）</p>
+    <AddToCalendar session={session} />
+    <Link href={`/my-sessions#${confirmed}`} className="inline-flex rounded-full bg-terracotta px-5 py-3 font-bold text-white">查看已預約場次</Link>
+  </section></div></main>;
   return <main className="min-h-screen bg-cream px-[5%] py-8"><div className="mx-auto max-w-3xl">
     <Logo /><Link href="/sessions" className="my-6 block text-muted">← 重新選擇場次</Link>
     <section className="rounded-2xl border border-border bg-white p-6">
@@ -69,7 +76,8 @@ export function CloudBooking({ session, initialIds }: { session: PublicSession; 
           try {
             const { data, error } = await browserAuth().rpc('book_session', { p_session_id: session.id, p_task_ids: selected.map(t => t.id) });
             if (error) throw error;
-            router.replace(`/my-sessions#${data}`); router.refresh();
+            window.dispatchEvent(new Event('zashipao-bookings-updated'));
+            setConfirmed(String(data));
           } catch (e) { setError(bookingError(e instanceof Error ? e.message : (e as { message?: string })?.message ?? '')); setBusy(false); }
         }}>{busy ? '正在確認預約…' : `確認預約（已選 ${selected.length} 件）`}</button>
       </fieldset>
