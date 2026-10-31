@@ -8,13 +8,15 @@ export function expiredVideoRoom(room: ManagedRoom, now: number): boolean {
     return metadata.app === 'zashipao' && metadata.version === 1 && metadata.sessionId === room.name.slice(8) && Number.isFinite(end) && end <= now;
   } catch { return false; }
 }
-export async function cleanupVideoRooms(service: { listRooms(): Promise<ManagedRoom[]>; deleteRoom(name: string): Promise<unknown> }, now = Date.now()) {
+export async function cleanupVideoRooms(service: { listRooms(): Promise<ManagedRoom[]>; deleteRoom(name: string): Promise<unknown> }, now = Date.now(), dryRun = false) {
   const rooms = await service.listRooms();
-  let deleted = 0, failed = 0;
+  let deleted = 0, failed = 0, eligible = 0;
   for (const room of rooms) {
     if (!expiredVideoRoom(room, now)) continue;
+    eligible++;
+    if (dryRun) continue;
     try { await service.deleteRoom(room.name); deleted++; }
     catch { failed++; } // Keep the next scheduled run able to retry.
   }
-  return { inspected: rooms.length, deleted, failed };
+  return { inspected: rooms.length, eligible, deleted, failed, dryRun };
 }

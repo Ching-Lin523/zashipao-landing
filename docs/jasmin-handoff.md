@@ -67,3 +67,21 @@
 6. 每批工作使用新分支，預覽、檢查後建立 PR。合併程式、更新資料庫、正式發布是不同步驟，分開確認。
 
 程式庫：JasminHsu/zashipao-landing。Ching 的開發目錄為 /Users/ching/Downloads/gitclone/zashipao-landing。
+
+## 2026-10-26 清理排程準備更新
+
+已補上只檢查、不刪房間的 dry-run 模式，以及 docs/video-cleanup-schedule.md 的啟用、驗收與停用步驟。六項清理測試和型別檢查通過；本機已實際連到 LiveKit，HTTP 200，當時無房間，沒有刪除任何房間。建議使用獨立 HTTP 排程服務（如 cron-job.org），不需要新增 Supabase SQL。尚未註冊／設定排程服務、尚未啟用排程、尚未在正式網站驗收；等 Jasmin 部署可用後再啟用。這批修改隨 PR #8 交付，正式部署尚待確認。
+
+## 密碼重設檢查（2026-10-26）
+
+重設密碼欄已加入顯示／隱藏按鈕。驗證回跳遇到網路例外會回到索取連結頁，不直接拋出錯誤頁；失敗回應禁止快取並保留 SDK 的 cookie 更新。四項模擬測試通過（正常 recovery cookie、缺少／失效 code、網路失敗、外站跳轉防護），TypeScript 通過。使用者已確認在本機網站完成收信、設定新密碼、登出後用新密碼登入，完整流程通過。正式網站仍需驗證正式網址的回跳流程；此單次成功不代表正式寄信容量或 SMTP 設定已驗收。測試由使用者自行操作，AI 未取得密碼或驗證連結。這批隨 PR #8 交付，正式部署尚待確認。
+
+## 2026-10-31 手機排版檢查
+
+詳見 docs/mobile-check.md。已修待辦頁手機導覽擠壓 Logo、Logo 拆行，以及場次操作區／編輯按鈕換行。瀏覽器模擬檢查 320px 與 390px；實際測了全選與開啟／取消編輯，未寫入或刪除使用者資料。正式手機的鍵盤、拖曳、相機麥克風與活動中房間仍待驗證。首頁文案疑點已列給 Jasmin 核對，這次未改首頁宣傳內容。修改隨 PR #8 交付，正式部署尚待確認。
+
+## 交付批次 — 2026-10-31
+
+此次更新現有 PR #8：https://github.com/JasminHsu/zashipao-landing/pull/8 。包含行事曆、手機排版、密碼重設回跳錯誤處理、清理 dry-run 與文件。交付前 PR #7 和 #8 都尚未合併，請接手者核對最新狀態。TypeScript 與 19 項自動測試通過。
+
+先讀 docs/mobile-check.md 與 docs/video-cleanup-schedule.md，再安排 Preview 完整測試。清理排程沒有啟用，LINE 沒有實作。這批沒有新增資料庫 migration 或環境變數，不需重跑先前 SQL。

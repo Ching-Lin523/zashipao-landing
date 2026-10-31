@@ -52,7 +52,7 @@ export default async function SessionsPage({ searchParams }: { searchParams: { t
                 <h2 className="mt-2 font-serif text-2xl font-bold">{session.title}</h2>
                 <p className="mt-2 text-muted">{timeFormat.format(new Date(session.starts_at))} – {timeFormat.format(new Date(session.ends_at))}</p>
               </div>
-              <div className="flex items-center gap-5">
+              <div className="flex flex-wrap items-center gap-3">
                 <span className="text-sm text-muted">{session.booked_count} / {session.capacity} 人 · 還有 {Math.max(0, session.capacity - session.booked_count)} 個名額</span>
                 {session.booked_count >= session.capacity ? <button disabled className="rounded-full border border-border px-5 py-2 text-muted">已額滿</button> : <Link className="rounded-full bg-terracotta px-5 py-3 text-sm font-bold text-white" href={`/sessions/book?session=${session.id}${tasks ? `&tasks=${encodeURIComponent(tasks)}` : ""}`}>預約這場次</Link>}
               </div>

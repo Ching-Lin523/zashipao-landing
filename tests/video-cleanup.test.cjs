@@ -16,3 +16,9 @@ test('one failed delete does not prevent others, next invocation can retry',asyn
   const result=await cleanupVideoRooms(service,Date.parse('2026-01-02'));
   assert.equal(result.deleted,1);assert.equal(result.failed,1);assert.equal(calls.length,2);
 });
+test('dry run counts expired rooms but never deletes them', async () => {
+  let deletes = 0;
+  const result = await cleanupVideoRooms({ listRooms: async () => [room('2026-01-01'), room('2027-01-01')], deleteRoom: async () => { deletes++; } }, Date.parse('2026-01-02'), true);
+  assert.equal(result.eligible, 1); assert.equal(result.dryRun, true);
+  assert.equal(result.deleted, 0); assert.equal(deletes, 0);
+});

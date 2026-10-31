@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { browserAuth } from '@/lib/supabase/browser';
 import { Logo } from './Logo';
+import { PasswordField } from './PasswordField';
 export function PasswordRecovery({ reset = false }: { reset?: boolean }) {
   const [ready, setReady] = useState(!reset);
   const [allowed, setAllowed] = useState(!reset);
@@ -50,8 +51,8 @@ export function PasswordRecovery({ reset = false }: { reset?: boolean }) {
       }}>
         <fieldset disabled={busy} className="grid gap-4">
           {reset ? <>
-            <label className="grid gap-1 text-sm">新密碼<input name="password" type="password" autoComplete="new-password" required minLength={8} className="rounded-lg border border-border px-3 py-3" /></label>
-            <label className="grid gap-1 text-sm">確認新密碼<input name="confirm" type="password" autoComplete="new-password" required minLength={8} className="rounded-lg border border-border px-3 py-3" /></label>
+            <PasswordField label="新密碼" name="password" autoComplete="new-password" minLength={8} placeholder="至少 8 個字元" />
+            <PasswordField label="確認新密碼" name="confirm" autoComplete="new-password" minLength={8} placeholder="再輸入一次新密碼" />
           </> : <label className="grid gap-1 text-sm">Email<input name="email" type="email" autoComplete="email" required className="rounded-lg border border-border px-3 py-3" /></label>}
           <button type="submit" className="rounded-full bg-terracotta px-4 py-3 font-bold text-white">{busy ? '處理中…' : reset ? '儲存新密碼' : '寄送重設連結'}</button>
         </fieldset>

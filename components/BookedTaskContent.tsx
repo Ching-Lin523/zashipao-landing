@@ -30,7 +30,7 @@ export function BookedTaskContent({ task, disabled }: { task: Task; disabled: bo
       <label className="grid gap-1 text-sm">待辦名稱<input autoFocus required value={title} onChange={event => setTitle(event.target.value)} className="min-w-0 rounded-lg border border-border bg-white px-3 py-2" /></label>
       <label className="grid gap-1 text-sm">預計完成日期<input type="date" value={deadline} onChange={event => setDeadline(event.target.value)} className="min-w-0 rounded-lg border border-border bg-white px-3 py-2" /></label>
       <label className="grid gap-1 text-sm">備註<textarea rows={2} value={note} onChange={event => setNote(event.target.value)} className="min-w-0 rounded-lg border border-border bg-white px-3 py-2" /></label>
-      <div className="flex gap-3"><button type="submit" disabled={!title.trim()} className="rounded-full bg-terracotta px-4 py-2 text-sm font-bold text-white disabled:opacity-40">{sync.saving ? '儲存中…' : '儲存修改'}</button><button type="button" onClick={() => setEditing(false)} className="px-3 py-2 text-sm text-muted">取消</button></div>
+      <div className="flex flex-wrap gap-3"><button type="submit" disabled={!title.trim()} className="min-h-11 rounded-full bg-terracotta px-4 py-2 text-sm font-bold text-white disabled:opacity-40">{sync.saving ? '儲存中…' : '儲存修改'}</button><button type="button" onClick={() => setEditing(false)} className="min-h-11 px-3 py-2 text-sm text-muted">取消</button></div>
     </fieldset>
   </form>;
 }

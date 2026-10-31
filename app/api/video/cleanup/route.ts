@@ -12,8 +12,9 @@ export async function POST(request: NextRequest) {
   if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return reply({ error: 'UNAUTHORIZED' }, 401);
   const url = process.env.LIVEKIT_URL, key = process.env.LIVEKIT_API_KEY, apiSecret = process.env.LIVEKIT_API_SECRET;
   if (!url || !key || !apiSecret) return reply({ error: 'NOT_CONFIGURED' }, 503);
+  const dryRun = request.nextUrl.searchParams.get('dryRun') === 'true';
   try {
-    const result = await cleanupVideoRooms(new RoomServiceClient(url.replace(/^wss:/, 'https:'), key, apiSecret));
+    const result = await cleanupVideoRooms(new RoomServiceClient(url.replace(/^wss:/, 'https:'), key, apiSecret), Date.now(), dryRun);
     return reply(result, result.failed ? 503 : 200);
   } catch { return reply({ error: 'CLEANUP_FAILED' }, 503); }
 }

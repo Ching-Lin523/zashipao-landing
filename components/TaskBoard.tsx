@@ -240,9 +240,9 @@ export function TaskBoard() {
   return (
     <main className="min-h-screen bg-cream">
       <header className="sticky top-0 z-40 border-b border-border bg-cream/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[62px] max-w-7xl items-center justify-between px-[5%]">
+        <div className="mx-auto flex min-h-[62px] max-w-7xl flex-wrap items-center justify-between gap-3 px-[5%] py-3">
           <Logo />
-          <nav className="flex items-center gap-3 text-sm">
+          <nav aria-label="主要導覽" className="flex min-w-0 items-center gap-2 text-sm max-[640px]:w-full max-[640px]:overflow-x-auto max-[640px]:pb-1 [&>a]:shrink-0 [&>a]:whitespace-nowrap [&>a]:min-h-11">
             <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/my-sessions">
               已預約場次
             </Link>
