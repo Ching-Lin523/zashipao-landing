@@ -9,6 +9,7 @@ import { BookingTaskPicker } from './BookingTaskPicker';
 import { BookedTaskContent } from './BookedTaskContent';
 import { TaskSyncStatus } from './TaskSyncStatus';
 import { AccountMenu } from './AccountMenu';
+import { AddToCalendar } from './AddToCalendar';
 import { SessionResult } from './SessionResult';
 
 type Booking = { session_results: { finished_at?: string | null } | null; id: string; session_id: string; sessions: { title: string; starts_at: string; ends_at: string } | null; booking_tasks: { task_id: number }[] };
@@ -109,6 +110,7 @@ export function MySessions() {
             }}><svg aria-hidden="true" className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="m6 6 12 12M18 6 6 18" /></svg></button> : null}
           </div>;
         })}</div>
+        {session && !started ? <AddToCalendar session={{ id: booking.session_id, ...session }} /> : null}
         <BookingTaskPicker bookingId={booking.id} taskIds={booking.booking_tasks.map(item => Number(item.task_id))} disabled={!!busy || started} onSaved={load} />
         <div className="mb-4">
           {session && now !== null && now >= Date.parse(session.starts_at) - 300000 && now < Date.parse(session.ends_at) ? <Link href={`/sessions/waiting/${booking.session_id}`} className="inline-flex rounded-full bg-forest px-5 py-3 text-sm font-bold text-white">進入等候區</Link> : <p className="text-xs text-light">{session && now !== null && now >= Date.parse(session.ends_at) ? '這場活動已結束。' : '等候區於活動開始前五分鐘開放。'}</p>}

@@ -19,3 +19,7 @@ New join requests set metadata from the database-validated scheduled end. Existi
 A trusted external scheduler must POST to the deployed public HTTPS endpoint every minute with the secret. Do not put secrets in committed SQL or URLs. No scheduler has been enabled by this code change. Until deployment and scheduler configuration are verified, natural-end enforcement still relies on the supported browser UI. With a healthy once-per-minute schedule, server disconnection can occur up to about one minute after the scheduled end, plus network/runtime delay. Monitor job failures.
 
 LiveKit token expiry restricts initial connection, not established connection duration. The scheduled room deletion is necessary for clients that suppress their own disconnect/polling. Failed early-finish media removal is still only retried by the client eligibility check or eventual room deletion; a dedicated retry queue is not implemented.
+
+## Scheduler preparation (2026-10-26)
+
+See [activation and verification guide](video-cleanup-schedule.md). Authenticated `POST /api/video/cleanup?dryRun=true` lists and counts eligible rooms without deleting any. The normal URL still performs cleanup. Responses include `eligible` and `dryRun` alongside the existing counts. Local read-only smoke check returned HTTP 200 with zero rooms; this verifies connectivity, not production deletion or scheduling. Six cleanup tests and TypeScript checks passed. No external schedule is active yet.
