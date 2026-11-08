@@ -198,16 +198,16 @@ async function addAdHocTask(event: FormEvent<HTMLFormElement>) {
   return (
     <main className="min-h-screen bg-cream">
       <header className="sticky top-0 z-40 border-b border-border bg-cream/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[62px] max-w-7xl items-center justify-between px-[5%]">
+        <div className="mx-auto flex min-h-[62px] max-w-7xl flex-wrap items-center justify-between gap-3 px-[5%] py-3">
           <Logo />
-          <nav className="flex items-center gap-3 text-sm">
-            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/my-sessions">
+          <nav className="flex items-center gap-2 text-sm">
+            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full border border-border px-4 py-0 font-semibold text-muted no-underline hover:border-muted" href="/my-sessions">
               已預約場次
             </Link>
-            <Link className="rounded-full bg-terracotta-lt px-4 py-2 font-bold text-terracotta no-underline" href="/sessions">
+            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full bg-terracotta-lt px-4 py-0 font-bold text-terracotta no-underline" href="/sessions">
               可預約場次
             </Link>
-            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/tasks">
+            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full border border-border px-4 py-0 font-semibold text-muted no-underline hover:border-muted" href="/tasks">
               我的待辦清單
             </Link>
           </nav>

@@ -26,12 +26,24 @@ function toRow(task: Task, userId: string) {
     first_noticed: task.firstNoticed, completed: !!task.completed, archived: !!task.archived,
     priority: !!task.priority, note: task.note || null, sort_order: task.order ?? null };
 }
+async function verifyUser(userId: string, token: number): Promise<boolean> {
+  const { data, error } = await browserAuth().auth.getUser();
+  if (token !== generation) return false;
+  if (error && error.status !== 401 && error.status !== 403) throw error;
+  if (error || !data.user || data.user.id !== userId) {
+    ++generation;
+    publish({ ...initial, loading: false, error: '登入已失效，請重新登入。' });
+    return false;
+  }
+  return true;
+}
 async function refresh() {
   if (!state.userId || state.saving) return;
   const userId = state.userId;
   const token = ++generation;
   publish({ loading: true, error: '' });
   try {
+    if (!await verifyUser(userId, token)) return;
     const { data, error } = await browserAuth().from('tasks').select(columns).eq('user_id', userId).order('id', { ascending: false });
     if (error) throw error;
     if (token === generation) publish({ tasks: (data ?? []).map(fromRow), loading: false });
@@ -63,6 +75,7 @@ async function updateTasks(update: SetStateAction<Task[]>): Promise<boolean> {
   const removed = before.filter(task => !next.some(item => item.id === task.id)).map(task => task.id);
   publish({ saving: true, error: '' });
   try {
+    if (!await verifyUser(userId, token)) return false;
     // Existing UI operations either delete rows or upsert rows, never both.
     if (changed.length && removed.length) throw new Error('Mixed operation is not supported');
     if (changed.length) {

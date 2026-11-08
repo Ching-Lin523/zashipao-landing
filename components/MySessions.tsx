@@ -49,12 +49,12 @@ export function MySessions() {
   const shown = view === 'past' ? past : upcoming;
   return <main className="min-h-screen bg-cream">
     <header className="border-b border-border bg-cream/95">
-      <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-x-6 gap-y-3 px-[5%] py-4 max-[900px]:grid-cols-[1fr_auto]">
+      <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-3 px-[5%] py-3 max-[900px]:grid-cols-[1fr_auto]">
         <Logo />
         <nav aria-label="主要導覽" className="flex items-center justify-end gap-2 text-sm max-[900px]:order-3 max-[900px]:col-span-2 max-[900px]:justify-start max-[900px]:overflow-x-auto">
-          <Link href="/my-sessions" aria-current="page" className="shrink-0 rounded-full bg-terracotta-lt px-4 py-2.5 font-bold text-terracotta">已預約場次</Link>
-          <Link href="/sessions" className="shrink-0 rounded-full px-4 py-2.5 text-muted hover:bg-white hover:text-ink">可預約場次</Link>
-          <Link href="/tasks" className="shrink-0 rounded-full px-4 py-2.5 text-muted hover:bg-white hover:text-ink">我的待辦清單</Link>
+          <Link href="/my-sessions" aria-current="page" className="inline-flex min-h-11 items-center justify-center whitespace-nowrap shrink-0 rounded-full bg-terracotta-lt px-4 py-0 font-bold text-terracotta">已預約場次</Link>
+          <Link href="/sessions" className="inline-flex min-h-11 items-center justify-center whitespace-nowrap shrink-0 rounded-full px-4 py-0 text-muted hover:bg-white hover:text-ink">可預約場次</Link>
+          <Link href="/tasks" className="inline-flex min-h-11 items-center justify-center whitespace-nowrap shrink-0 rounded-full px-4 py-0 text-muted hover:bg-white hover:text-ink">我的待辦清單</Link>
         </nav>
         <div className="justify-self-end"><AccountMenu /></div>
       </div>

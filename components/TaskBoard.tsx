@@ -243,13 +243,13 @@ export function TaskBoard() {
         <div className="mx-auto flex min-h-[62px] max-w-7xl flex-wrap items-center justify-between gap-3 px-[5%] py-3">
           <Logo />
           <nav aria-label="主要導覽" className="flex min-w-0 items-center gap-2 text-sm max-[640px]:w-full max-[640px]:overflow-x-auto max-[640px]:pb-1 [&>a]:shrink-0 [&>a]:whitespace-nowrap [&>a]:min-h-11">
-            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/my-sessions">
+            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full border border-border px-4 py-0 font-semibold text-muted no-underline hover:border-muted" href="/my-sessions">
               已預約場次
             </Link>
-            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/sessions">
+            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full border border-border px-4 py-0 font-semibold text-muted no-underline hover:border-muted" href="/sessions">
               可預約場次
             </Link>
-            <Link className="rounded-full bg-terracotta-lt px-4 py-2 font-bold text-terracotta no-underline" href="/tasks">
+            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full bg-terracotta-lt px-4 py-0 font-bold text-terracotta no-underline" href="/tasks">
               我的待辦清單
             </Link>
           </nav>
