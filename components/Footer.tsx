@@ -9,7 +9,7 @@ const footerLinks = [
 
 export function Footer() {
   return (
-    <footer className="flex items-center justify-between gap-4 bg-[#111] px-[6%] py-8 text-sm text-white/45 max-[900px]:flex-col max-[900px]:text-center">
+    <footer className="flex items-center justify-between gap-4 bg-ink px-[6%] py-9 text-sm text-white/45 max-[900px]:flex-col max-[900px]:text-center">
       <Logo dark />
       <div className="flex gap-6 max-[720px]:flex-wrap max-[720px]:justify-center">
         {footerLinks.map(([label, href]) => (
@@ -18,7 +18,7 @@ export function Footer() {
           </a>
         ))}
       </div>
-      <span>© 2025 雜事房 · Made in Taiwan 🇹🇼</span>
+      <span>© 2026 雜事房 · 線上共做空間</span>
     </footer>
   );
 }

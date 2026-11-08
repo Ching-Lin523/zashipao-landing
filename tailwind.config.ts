@@ -5,6 +5,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        paper: "#FFFDF8",
+        citron: "#E7F36A",
+        coral: "#FF5A36",
+        pine: "#244D3D",
+        sky: "#BFDDF5",
         cream: {
           DEFAULT: "#FAF7F2",
           d: "#F0EBE0",
@@ -18,9 +23,9 @@ const config: Config = {
         muted: "#6B6258",
         light: "#A89E95",
         terracotta: {
-          DEFAULT: "#C4603A",
-          d: "#A84E2E",
-          lt: "#F5E8E2"
+          DEFAULT: "#FF5A36",
+          d: "#E54828",
+          lt: "#FFF0EB"
         },
         forest: {
           DEFAULT: "#4A7260",
@@ -37,7 +42,8 @@ const config: Config = {
       },
       boxShadow: {
         soft: "0 2px 16px rgba(28,25,23,.08)",
-        lift: "0 6px 32px rgba(28,25,23,.12)"
+        lift: "0 12px 40px rgba(28,25,23,.14)",
+        editorial: "0 24px 70px rgba(28,25,23,.16)"
       },
       spacing: {
         "22": "5.5rem"

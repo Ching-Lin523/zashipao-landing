@@ -1,18 +1,18 @@
 export function LineBand() {
   return (
-    <div className="flex items-center justify-between gap-5 bg-[#06C755] px-[6%] py-5 max-[900px]:flex-col max-[900px]:text-center">
-      <div className="flex items-center gap-4 max-[720px]:flex-col">
-        <div className="flex h-[42px] min-w-16 items-center justify-center rounded-[10px] bg-white px-2 font-sans text-lg font-black text-[#06C755]">
-          LINE
+    <div className="border-y border-black/15 bg-[#FFFDF8] px-[6%] py-6">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-7 max-[720px]:items-start">
+        <div className="flex items-center gap-5 max-[520px]:items-start">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-md bg-[#06C755] text-sm font-black text-white">LINE</div>
+          <div>
+            <div className="font-bold">場次快開始時，提醒你回來</div>
+            <div className="mt-1 text-sm text-ink/55">加入 LINE 官方帳號，開場前收到通知。</div>
+          </div>
         </div>
-        <div className="text-white">
-          <div className="text-[.95rem] font-bold">加入 LINE 官方帳號，場次提醒直接送到你手上</div>
-          <div className="text-sm opacity-85">開場前 10 分鐘推播通知，從不讓你忘記自己預約的雜事時間</div>
-        </div>
+        <a href="/login" className="whitespace-nowrap border-b border-ink pb-1 text-sm font-bold text-ink no-underline max-[520px]:hidden">
+          加入 LINE
+        </a>
       </div>
-      <a href="/login" className="whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#06C755] no-underline">
-        加入 LINE 帳號
-      </a>
     </div>
   );
 }

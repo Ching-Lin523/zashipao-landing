@@ -7,6 +7,7 @@ import { LineBand } from "@/components/LineBand";
 import { Navbar } from "@/components/Navbar";
 import { ProblemSection } from "@/components/ProblemSection";
 import { RevealController } from "@/components/RevealController";
+import { RoomPreview } from "@/components/RoomPreview";
 import { Sessions } from "@/components/Sessions";
 import { Testimonials } from "@/components/Testimonials";
 import { Ticker } from "@/components/Ticker";
@@ -30,11 +31,12 @@ export default async function Home() {
       <RevealController />
       <Navbar />
       <main>
-        <Hero upcomingSessions={sessions} loadError={failed} />
+        <Hero />
         <Ticker />
         <ProblemSection />
         <HowItWorks />
-        <Features />
+        <RoomPreview />
+        <Features upcomingSessions={sessions} loadError={failed} />
         <Sessions sessions={sessions.slice(0, 6)} loadError={failed} />
         <LineBand />
         <Testimonials />
