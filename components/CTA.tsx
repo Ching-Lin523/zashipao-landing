@@ -2,7 +2,7 @@ import { ButtonLink } from "./ButtonLink";
 
 export function CTA() {
   return (
-    <section className="bg-[#F26C4F] px-[6%] py-24 text-ink max-[720px]:py-16">
+    <section className="bg-[#FF5A36] px-[6%] py-24 text-ink max-[720px]:py-16">
       <div className="mx-auto flex max-w-6xl items-end justify-between gap-14 max-[800px]:block">
         <div>
           <p className="mb-5 text-sm font-bold">有件事，已經想很久了嗎？</p>

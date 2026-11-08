@@ -15,7 +15,7 @@ export function Ticker() {
       <div className="flex w-max animate-tick">
         {[...taskExamples, ...taskExamples].map((item, index) => (
           <span className="flex shrink-0 items-center gap-3 px-10 text-sm text-white/75" key={`${item}-${index}`}>
-            <span className="size-1.5 rounded-full bg-[#F06B4F]" />
+            <span className="size-1.5 rounded-full bg-[#FF5A36]" />
             {item}
           </span>
         ))}

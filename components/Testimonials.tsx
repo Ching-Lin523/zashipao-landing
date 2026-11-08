@@ -22,7 +22,7 @@ export function Testimonials() {
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-[.8fr_1.2fr] gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-10">
           <div>
-            <p className="mb-4 text-sm font-bold text-[#F26C4F]">一起做過的人說</p>
+            <p className="mb-4 text-sm font-bold text-[#FF5A36]">一起做過的人說</p>
             <h2 className="font-serif text-[clamp(2.5rem,4.7vw,4.7rem)] font-black leading-[1.08]">
               有人一起，<br />開始就沒那麼難。
             </h2>
