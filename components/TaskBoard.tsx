@@ -7,6 +7,8 @@ import { useSharedTasks } from "./useSharedTasks";
 import type { Task } from "./taskStore";
 import { TaskSyncStatus } from "./TaskSyncStatus";
 import { Logo } from "./Logo";
+import { browserAuth } from "@/lib/supabase/browser";
+import { WeeklyTasks } from "./WeeklyTasks";
 import { TaskSessionBadge } from "./TaskSessionBadge";
 
 type TaskStatus = "overdue" | "urgent" | "stale" | "open";
@@ -108,6 +110,11 @@ export function TaskBoard() {
     } catch {}
   }, []);
   const [title, setTitle] = useState("");
+  const [taskKind, setTaskKind] = useState("once");
+  const [weeklyCount, setWeeklyCount] = useState(3);
+  const [creatingWeekly, setCreatingWeekly] = useState(false);
+  const [createError, setCreateError] = useState("");
+  const [weeklyRefresh, setWeeklyRefresh] = useState(0);
   const [deadline, setDeadline] = useState(defaultDate(7));
   const [showDetails, setShowDetails] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
@@ -120,7 +127,7 @@ export function TaskBoard() {
   const [dropId, setDropId] = useState<number | null>(null);
   const [sortNotice, setSortNotice] = useState("");
 
-  const activeTasks = tasks.filter((task) => !task.archived);
+  const activeTasks = tasks.filter((task) => !task.archived && !task.weeklyGoalId);
   const archivedTasks = tasks.filter((task) => task.archived);
 
   const sortedTasks = useMemo(
@@ -220,7 +227,22 @@ export function TaskBoard() {
   async function handleAddTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedTitle = title.trim();
-    if (!trimmedTitle) return;
+    if (!trimmedTitle || creatingWeekly || !taskSync.userId) return;
+    setCreateError("");
+    if (taskKind === "weekly") {
+      setCreatingWeekly(true);
+      try {
+        const { error } = await browserAuth().from("weekly_goals").insert({
+          user_id: taskSync.userId, title: trimmedTitle, weekly_count: weeklyCount
+        });
+        if (error) throw error;
+        setTitle("");
+        setWeeklyRefresh(value => value + 1);
+      } catch {
+        setCreateError("新增未確認成功，請重新整理確認是否已建立，再試一次。");
+      } finally { setCreatingWeekly(false); }
+      return;
+    }
 
     const task: Task = {
       id: Date.now(),
@@ -284,26 +306,43 @@ export function TaskBoard() {
         </section>
 
         <TaskSyncStatus />
-        {localBackup.length > 0 ? <div className="mb-4 rounded-xl border border-border bg-white p-4 text-sm text-muted">
+        {localBackup.length > 0 ? <details className="mb-4 text-sm text-muted"><summary className="cursor-pointer py-2">有 {localBackup.length} 件舊待辦可匯入</summary>
           這個瀏覽器還保留 {localBackup.length} 件舊待辦。確認是自己的資料後，可匯入目前帳號；同 ID 的雲端資料不會覆寫。
           <button type="button" disabled={taskSync.loading || taskSync.saving || !!taskSync.error || !taskSync.userId} className="ml-2 min-h-11 font-bold text-terracotta underline disabled:opacity-40" onClick={async () => {
             if (!window.confirm('確認將這個瀏覽器的舊待辦匯入目前登入的帳號？')) return;
             if (await setTasks(current => [...current, ...localBackup.filter(task => !current.some(existing => existing.id === task.id))])) setLocalBackup([]);
           }}>匯入舊待辦</button>
-        </div> : null}
+        </details> : null}
         <fieldset disabled={taskSync.loading || taskSync.saving || !!taskSync.error || !taskSync.userId} className="min-w-0 border-0 p-0 m-0">
         <form className="mb-5 rounded-2xl border-[1.5px] border-border bg-white p-4 shadow-soft" onSubmit={handleAddTask}>
-          <div className="grid grid-cols-[minmax(0,1fr)_156px_112px] gap-3 max-[900px]:grid-cols-1">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-serif text-xl font-bold">新增待辦</h2>
+            <div className="flex rounded-full bg-cream p-1" aria-label="待辦類型">
+              {[["once", "一次性"], ["weekly", "每週重複"]].map(([value, label]) => (
+                <button type="button" key={value} disabled={creatingWeekly} aria-pressed={taskKind === value}
+                  onClick={() => { setTaskKind(value); setCreateError(""); }}
+                  className={`rounded-full px-4 py-2 text-sm font-bold ${taskKind === value ? "bg-forest text-white" : "text-muted"}`}>{label}</button>
+              ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-[minmax(0,1fr)_156px_112px] gap-3 max-[640px]:grid-cols-1">
             <label className="block">
-              <span className="mb-1 block text-xs font-bold text-muted">事項</span>
+              <span className="mb-1 block text-xs font-bold text-muted">想做什麼？</span>
               <input
                 className="h-12 w-full rounded-xl border-[1.5px] border-border bg-cream px-4 text-base outline-none placeholder:text-light focus:border-terracotta"
+                required maxLength={200} disabled={creatingWeekly}
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="輸入一件想處理的事，例如：預約牙醫、補申報資料"
+                placeholder={taskKind === "weekly" ? "例如：跑步30分鐘" : "例如：預約牙醫、補申報資料"}
               />
             </label>
-            <label className="block">
+            {taskKind === "weekly" ? <label className="block">
+              <span className="mb-1 block text-xs font-bold text-muted">每週次數</span>
+              <select value={weeklyCount} disabled={creatingWeekly} onChange={event => setWeeklyCount(Number(event.target.value))}
+                className="h-12 w-full rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm">
+                {[1,2,3,4,5,6,7].map(count => <option key={count} value={count}>{count} 次</option>)}
+              </select>
+            </label> : <label className="block">
               <span className="mb-1 block text-xs font-bold text-muted">預計完成日</span>
               <input
                 className="h-12 w-full rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
@@ -312,16 +351,16 @@ export function TaskBoard() {
                 onChange={(event) => setDeadline(event.target.value)}
                 aria-label="預計完成日"
               />
-            </label>
+            </label>}
             <div className="block">
               <span className="mb-1 block text-xs font-bold text-transparent">加入</span>
-              <button className="h-12 w-full rounded-xl bg-terracotta px-6 text-base font-bold text-white transition-colors hover:bg-terracotta-d" type="submit">
-                加入
+              <button disabled={creatingWeekly} className="h-12 w-full rounded-full bg-terracotta px-6 text-base font-bold text-white transition-colors hover:bg-terracotta-d" type="submit">
+                {creatingWeekly ? "加入中…" : "加入"}
               </button>
             </div>
           </div>
 
-          {showDetails ? (
+          {taskKind === "once" && showDetails ? (
             <div className="mt-3">
               <input
                 className="min-h-11 w-full rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
@@ -332,15 +371,17 @@ export function TaskBoard() {
             </div>
           ) : null}
 
-          <button
+          {taskKind === "once" ? <button
             className="mt-3 inline-flex items-center gap-1 rounded-full px-1 text-sm font-bold text-muted underline-offset-4 hover:text-ink hover:underline"
             type="button"
             onClick={() => setShowDetails((current) => !current)}
           >
             <span>{showDetails ? "−" : "+"}</span>
             {showDetails ? "收起補充細節" : "補充細節"}
-          </button>
+          </button> : <p className="mt-3 text-sm text-muted">從本週開始，每次可分別完成、加入不同場次。</p>}
+          {createError && <p role="alert" className="mt-3 text-sm text-terracotta">{createError}</p>}
         </form>
+        <WeeklyTasks refreshKey={weeklyRefresh} />
 
         {bookingIds.some(id => unfinishedTasks.some(t => t.id === id)) ? (
           <div className="fixed bottom-4 left-1/2 z-40 flex w-[min(760px,94vw)] -translate-x-1/2 flex-wrap items-center justify-center gap-3 rounded-2xl border border-border bg-white p-4 shadow-lift" role="region" aria-label="已選待辦操作">

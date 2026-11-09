@@ -1,3 +1,4 @@
+import { SessionBookingStatus, SessionBookingAction } from "./SessionBookingStatus";
 import { SessionAvailability } from "./SessionAvailability";
 import { ButtonLink } from "./ButtonLink";
 import type { HomeSession } from "./HomeSessionCard";
@@ -19,6 +20,7 @@ export function Sessions({ sessions, loadError = false }: { sessions: HomeSessio
           </ButtonLink>
         </div>
 
+        <SessionBookingStatus>
         <div className="rv border-t-2 border-ink">
           {loadError ? (
             <p role="alert" className="border-b border-ink/25 py-7 text-ink/60">場次暫時無法載入，請稍後重新整理。</p>
@@ -41,17 +43,16 @@ export function Sessions({ sessions, loadError = false }: { sessions: HomeSessio
                 <div className="max-[900px]:hidden">
                   <SessionAvailability bookedCount={session.bookedCount ?? 0} capacity={session.capacity} />
                 </div>
-                {full ? (
-                  <button disabled className="rounded-md border border-black/15 px-5 py-2.5 text-sm font-bold text-ink/35">已額滿</button>
-                ) : (
-                  <ButtonLink href={session.bookingHref} variant="outline" className="border-black/25 bg-[#FFFDF8]/70 px-5 py-2.5 font-bold hover:bg-[#FFFDF8]">
-                    預約
-                  </ButtonLink>
-                )}
+                <SessionBookingAction
+                  sessionId={new URL(session.bookingHref, 'http://localhost').searchParams.get('session') ?? ''}
+                  full={full}
+                  tasks=""
+                />
               </article>
             );
           })}
         </div>
+        </SessionBookingStatus>
         <ButtonLink href="/sessions" variant="outline" className="mt-8 hidden border-black/25 bg-[#FFFDF8] px-5 py-2.5 max-[600px]:inline-flex">
           查看所有場次
         </ButtonLink>

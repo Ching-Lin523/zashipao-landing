@@ -1,5 +1,7 @@
 # 雜事房交接給 Jasmin
 
+> 最新接手入口：[整合交接文件](jasmin-handoff-consolidated.md)，更新於 2026/11/08。以下保留歷史紀錄，當時的未推送或部署狀態請勿當作目前狀態。
+
 更新日期：2026-10-26。這份是工作交接，並不表示所有功能已正式上線。
 
 ## 已做的工作
@@ -85,3 +87,19 @@
 此次更新現有 PR #8：https://github.com/JasminHsu/zashipao-landing/pull/8 。包含行事曆、手機排版、密碼重設回跳錯誤處理、清理 dry-run 與文件。交付前 PR #7 和 #8 都尚未合併，請接手者核對最新狀態。TypeScript 與 19 項自動測試通過。
 
 先讀 docs/mobile-check.md 與 docs/video-cleanup-schedule.md，再安排 Preview 完整測試。清理排程沒有啟用，LINE 沒有實作。這批沒有新增資料庫 migration 或環境變數，不需重跑先前 SQL。
+
+## 2026/10/31 帳號刪除流程準備
+
+新增 `docs/account-deletion.md` 人工處理草案，以及 `supabase/checks/account-deletion-audit.sql` 唯讀盤點。已檢查本機資料表外鍵：私人資料會連帶刪除，但 booking_events 僅清空 user_id；LiveKit 連線需另外處理。尚未新增申請入口、未刪任何帳號、未驗證實際資料庫。客服管道、處理時間與操作紀錄／日誌／備份保留政策待兩人決定。這是後續新批次，尚未推送；不是先前 e96aeb3 已交付的內容。
+
+## 2026/10/31 隱私說明草稿
+
+新增 `docs/privacy-draft.md`，依目前程式整理資料種類、用途、同場可見資訊、影音、供應商、瀏覽器儲存、行事曆與刪除限制。聯絡信箱已於 2026/11/04 指定為 steph4mat@gmail.com；營運者、保存期限、服務地區、外部錄影／追蹤設定及申請方式待確認；不是可直接發布的正式政策。本機頁尾有 /privacy 連結但沒有對應頁面，請 Jasmin 核對 PR #7。這批沒有改公開頁面、資料庫或環境變數，尚未推送。先前 Word 匯出未包含此補充。
+
+## 2026/10/31 場次管理盤點
+
+新增 `docs/session-management.md`：第一版先用 Supabase Table Editor 新增未公開草稿，再確認並發布，不需日常手寫 SQL。提供台灣時區填法與唯讀盤點 `supabase/checks/session-management-audit.sql`。目前無獨立管理頁；is_published=false 會連帶阻擋既有預約者進房，不能當成僅停止新預約。公開場次改期涉及競爭、時間衝突、行事曆與 LiveKit，不建議直接編輯。未操作雲端資料，未新增管理權限或 migration，尚未推送。
+
+## 2026/10/31 場次管理試用與 Word 更新
+
+使用者已操作 12 月測試場次的草稿新增、公開並在本機網站看到，於收回草稿指引後回報完成。未獨立查詢雲端最終狀態或核實精確時區。整合 Word 已補入帳號刪除、隱私草稿與場次管理內容；本批文件仍未推送，不是 e96aeb3 的一部分。

@@ -22,7 +22,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 flex items-end justify-between gap-10 max-[800px]:block">
           <div>
-            <p className="mb-4 text-sm font-bold text-[#FF5A36]">怎麼運作</p>
+            <p className="mb-4 text-sm font-bold text-[#C45F38]">怎麼運作</p>
             <h2 className="rv font-serif text-[clamp(2.4rem,4.5vw,4.8rem)] font-black leading-[1.08]">
               一起開始，<br />各自完成。
             </h2>
@@ -38,7 +38,7 @@ export function HowItWorks() {
               style={{ transitionDelay: `${index * 0.08}s` }}
               key={step.number}
             >
-              <span className="font-serif text-2xl font-black text-[#FF5A36]">{step.number}</span>
+              <span className="font-serif text-2xl font-black text-[#C45F38]">{step.number}</span>
               <h3 className="font-serif text-2xl font-bold max-[720px]:text-xl">{step.title}</h3>
               <p className="text-base leading-[1.7] text-ink/60 max-[720px]:col-start-2">{step.description}</p>
             </div>

@@ -51,7 +51,7 @@ export function PersonalHomeSession(props: HomeSessionCardProps) {
     window.addEventListener('zashipao-cloud-tasks-updated', refresh);
     return () => { active = false; ++version; subscription.unsubscribe(); clearInterval(timer); window.removeEventListener('focus', refresh); window.removeEventListener('zashipao-bookings-updated', refresh); window.removeEventListener('zashipao-cloud-tasks-updated', refresh); };
   }, [retry]);
-  if (loading) return <div role="status" className="rounded-xl2 border border-border bg-white p-6 shadow-lift">正在確認你的場次…</div>;
-  if (error) return <div role="alert" className="rounded-xl2 border border-border bg-white p-6 shadow-lift"><h2 className="text-xl font-bold">暫時無法讀取你的預約</h2><p className="my-4 text-sm text-muted">請重試，或到已預約場次查看。</p><button onClick={() => setRetry(value => value + 1)} className="mr-4 min-h-11 text-terracotta underline">重試</button><ButtonLink href="/my-sessions" variant="outline">查看已預約場次</ButtonLink></div>;
+  if (loading) return <div role="status" className="rounded-xl2 border border-border bg-white p-6 text-ink shadow-lift">正在確認你的場次…</div>;
+  if (error) return <div role="alert" className="rounded-xl2 border border-border bg-white p-6 text-ink shadow-lift"><h2 className="text-xl font-bold">暫時無法讀取你的預約</h2><p className="my-4 text-sm text-muted">請重試，或到已預約場次查看。</p><button onClick={() => setRetry(value => value + 1)} className="mr-4 min-h-11 text-terracotta underline">重試</button><ButtonLink href="/my-sessions" variant="outline">查看已預約場次</ButtonLink></div>;
   return <HomeSessionCard {...props} member={member} loadError={member ? false : props.loadError} />;
 }

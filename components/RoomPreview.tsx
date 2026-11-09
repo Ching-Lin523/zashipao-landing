@@ -13,7 +13,7 @@ export function RoomPreview() {
       <div className="mx-auto max-w-[1120px]">
         <div className="mb-12 grid grid-cols-[.8fr_1.2fr] items-end gap-12 max-[760px]:grid-cols-1 max-[760px]:gap-5">
           <div>
-            <p className="mb-4 text-sm font-bold text-[#FF5A36]">進房後會看到什麼</p>
+            <p className="mb-4 text-sm font-bold text-[#C45F38]">進房後會看到什麼</p>
             <h2 className="rv font-serif text-[clamp(2.5rem,4.5vw,4.6rem)] font-black leading-[1.08] text-ink">看見彼此，<br />不需要互相打擾。</h2>
           </div>
           <p className="max-w-[500px] text-base leading-[1.8] text-ink/60">
@@ -23,7 +23,7 @@ export function RoomPreview() {
 
         <div className="mb-4 flex items-end justify-between border-b border-ink/15 text-sm font-bold text-ink/45 max-[560px]:items-center">
           <div className="flex gap-7 max-[560px]:gap-5">
-            <span className="border-b-2 border-[#FF5A36] pb-3 text-ink">專注中</span>
+            <span className="border-b-2 border-[#C45F38] pb-3 text-ink">專注中</span>
             <span className="pb-3">開場</span>
             <span className="pb-3">結束分享</span>
           </div>
@@ -46,7 +46,7 @@ export function RoomPreview() {
             <div className="grid h-[436px] grid-cols-[1fr_270px]">
               <div className="grid grid-cols-2 gap-3 p-3">
                 {previewParticipants.map((participant) => (
-                  <div className={`relative flex min-h-[170px] items-center justify-center border bg-white/[.055] ${participant.active ? "border-[#FF5A36]" : "border-white/10"}`} key={participant.name}>
+                  <div className={`relative flex min-h-[170px] items-center justify-center border bg-white/[.055] ${participant.active ? "border-[#C45F38]" : "border-white/10"}`} key={participant.name}>
                     <span className="absolute right-3 top-3 text-[.68rem] font-bold text-white/40">在線</span>
                     <div className="text-center text-white">
                       <span className={`mx-auto flex size-14 items-center justify-center rounded-full text-lg font-black ${participant.color}`}>{participant.name}</span>
@@ -57,7 +57,7 @@ export function RoomPreview() {
                 ))}
               </div>
               <div className="border-l border-white/10 bg-[#F7F9F7] p-5 text-ink">
-                <span className="text-xs font-bold text-[#FF5A36]">本場承諾</span>
+                <span className="text-xs font-bold text-[#C45F38]">本場承諾</span>
                 <p className="mt-1 font-sans text-2xl font-black">0 / 3 已完成</p>
                 <div className="mt-4 h-1.5 bg-black/10"><div className="h-full w-[8%] bg-[#33614E]" /></div>
                 <div className="mt-6 space-y-3">

@@ -59,7 +59,7 @@ export function HomeSessionCard({ upcomingSessions = [], member, preview = false
     : session ? session.bookingHref : undefined;
 
   return (
-    <div className="rounded-xl2 border-[1.5px] border-border bg-white p-6 shadow-lift">
+    <div className="rounded-xl2 border-[1.5px] border-border bg-white p-6 text-ink shadow-lift">
       {preview ? <p className="mb-3 text-xs text-light">場次示意 · 日期與內容為示範資料</p> : null}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <span className="rounded-full bg-forest-lt px-3 py-1 text-xs font-semibold text-forest">

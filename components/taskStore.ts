@@ -1,5 +1,8 @@
 export type Task = {
   id: number;
+  weeklyGoalId?: string;
+  occurrenceWeek?: string;
+  occurrenceNumber?: number;
   title: string;
   deadline: string;
   firstNoticed: string;

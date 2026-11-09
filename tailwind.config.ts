@@ -7,7 +7,7 @@ const config: Config = {
       colors: {
         paper: "#FFFDF8",
         citron: "#E7F36A",
-        coral: "#FF5A36",
+        coral: "#C45F38",
         pine: "#244D3D",
         sky: "#BFDDF5",
         cream: {
@@ -23,8 +23,8 @@ const config: Config = {
         muted: "#6B6258",
         light: "#A89E95",
         terracotta: {
-          DEFAULT: "#FF5A36",
-          d: "#E54828",
+          DEFAULT: "#C45F38",
+          d: "#A94D2D",
           lt: "#FFF0EB"
         },
         forest: {

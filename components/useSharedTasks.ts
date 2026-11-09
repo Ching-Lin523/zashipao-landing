@@ -14,15 +14,15 @@ function publish(patch: Partial<State>) {
   listeners.forEach(listener => listener());
 }
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
-const columns = 'id,title,deadline,first_noticed,completed,archived,priority,note,sort_order';
+const columns = '*';
 function fromRow(row: Record<string, unknown>): Task {
-  return { id: Number(row.id), title: String(row.title), deadline: row.deadline ? String(row.deadline) : '',
+  return { weeklyGoalId: row.weekly_goal_id ? String(row.weekly_goal_id) : undefined, occurrenceWeek: row.occurrence_week ? String(row.occurrence_week) : undefined, occurrenceNumber: row.occurrence_number ? Number(row.occurrence_number) : undefined, id: Number(row.id), title: String(row.title), deadline: row.deadline ? String(row.deadline) : '',
     firstNoticed: String(row.first_noticed), completed: Boolean(row.completed), archived: Boolean(row.archived),
     priority: Boolean(row.priority), note: row.note ? String(row.note) : undefined,
     order: typeof row.sort_order === 'number' ? row.sort_order : undefined };
 }
 function toRow(task: Task, userId: string) {
-  return { user_id: userId, id: task.id, title: task.title, deadline: task.deadline || null,
+  return { ...(task.weeklyGoalId ? { weekly_goal_id: task.weeklyGoalId, occurrence_week: task.occurrenceWeek, occurrence_number: task.occurrenceNumber } : {}), user_id: userId, id: task.id, title: task.title, deadline: task.deadline || null,
     first_noticed: task.firstNoticed, completed: !!task.completed, archived: !!task.archived,
     priority: !!task.priority, note: task.note || null, sort_order: task.order ?? null };
 }
