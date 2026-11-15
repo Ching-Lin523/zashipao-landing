@@ -5,8 +5,8 @@ import { browserAuth } from '@/lib/supabase/browser';
 import { sessionDate, sessionTime } from '@/lib/bookingErrors';
 import { RoomPresence } from './RoomPresence';
 import { Logo } from './Logo';
+import { RoomWorkspace, RoomTaskProgress } from './RoomWorkspace';
 import dynamic from 'next/dynamic';
-import { videoRequest } from '@/lib/videoRequest';
 const SessionVideo = dynamic(() => import('./SessionVideo').then(module => module.SessionVideo), { ssr: false });
 import { SessionResult } from './SessionResult';
 type Room = { finished_at?: string | null; title: string; starts_at: string; ends_at: string; server_time: string; tasks: { id: number; title: string; completed: boolean }[] };
@@ -18,7 +18,6 @@ export function LiveSessionRoom({ sessionId }: { sessionId: string }) {
   const [loading, setLoading] = useState(true);
   const [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState<number | null>(null);
-  const [finishing, setFinishing] = useState(false);
   const lock = useRef(false);
   const generation = useRef(0);
   useEffect(() => {
@@ -53,23 +52,21 @@ export function LiveSessionRoom({ sessionId }: { sessionId: string }) {
     window.addEventListener('focus', refresh);
     return () => { active = false; ++generation.current; clearInterval(poll); clearInterval(clock); subscription.unsubscribe(); window.removeEventListener('focus', refresh); };
   }, [sessionId, retry]);
-  return <main className="min-h-screen bg-cream px-[5%] py-8"><div className="mx-auto max-w-3xl">
+  return <main className="room-page min-h-screen bg-[#F1EEE6] px-3 py-5 sm:px-[4%] sm:py-8"><div className="room-page-inner mx-auto max-w-[1400px]">
     <Logo /><Link href="/my-sessions" className="my-6 block text-sm text-muted">← 返回已預約場次</Link>
-    <section className="rounded-2xl border border-border bg-white p-6">
+    <section>
       {loading ? <p role="status">正在確認場次資格…</p> : null}
       {error ? <div role="alert" className="my-4 text-terracotta">{error} <button className="underline" onClick={() => setRetry(value => value + 1)}>重新載入</button></div> : null}
-      {room && (remaining === 0 || room.finished_at) ? <SessionResult sessionId={sessionId} /> : room ? <>
-        <p className="text-sm font-bold text-forest">{remaining > 0 ? '一起專注' : '本場已結束'}</p>
-        <h1 className="mt-3 font-serif text-3xl font-black">{room.title}</h1>
-        <p className="mt-3 text-sm text-muted">{sessionDate(room.starts_at)} · {sessionTime(room.starts_at)}–{sessionTime(room.ends_at)}（台灣時間）</p>
-        <div className="my-6 rounded-xl bg-forest-lt p-6 text-center text-forest"><p className="text-sm">{remaining > 0 ? '本場剩餘時間' : '本場待辦目前的完成狀態'}</p>
-          <p className="mt-2 font-mono text-4xl font-bold">{remaining > 0 ? `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2,'0')}` : `${room.tasks.filter(task => task.completed).length} / ${room.tasks.length} 件完成`}</p>
-        </div>
-        {remaining > 0 ? <RoomPresence sessionId={sessionId} /> : null}
-        <SessionVideo key={sessionId} sessionId={sessionId} />
-        <p className="mb-3 text-sm text-muted">完成狀態會同步更新「我的待辦清單」。</p>
-        <div className="grid gap-3">{room.tasks.map(task => <label key={task.id} className="flex items-center gap-3 rounded-xl bg-cream p-4">
-          <input type="checkbox" className="size-5 accent-forest" checked={task.completed} disabled={finishing || busy !== null || remaining === 0} onChange={async event => {
+      {room && (remaining === 0 || room.finished_at) ? <div className="rounded-2xl bg-white p-6"><SessionResult sessionId={sessionId} /></div> : room ? <RoomWorkspace
+        title={room.title}
+        schedule={`${sessionDate(room.starts_at)} · ${sessionTime(room.starts_at)}–${sessionTime(room.ends_at)}（台灣時間）`}
+        timer={`${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2,'0')}`}
+        video={<><SessionVideo key={sessionId} sessionId={sessionId} saving={busy !== null} /><RoomPresence sessionId={sessionId} hideList /></>}
+      >
+        <RoomTaskProgress completed={room.tasks.filter(task => task.completed).length} total={room.tasks.length} />
+        <p className="mb-4 text-xs leading-6 text-muted">各自專心，一件件慢慢完成。勾選後會同步到你的待辦清單。</p>
+        <div className="grid gap-3">{room.tasks.map(task => <label key={task.id} className="flex items-start gap-3 rounded-xl border border-border bg-white p-3">
+          <input type="checkbox" className="mt-0.5 size-5 shrink-0 accent-forest" checked={task.completed} disabled={busy !== null || remaining === 0} onChange={async event => {
             if (lock.current || remaining === 0) return;
             lock.current = true; setBusy(task.id); setError('');
             const completed = event.target.checked, token = generation.current;
@@ -80,25 +77,11 @@ export function LiveSessionRoom({ sessionId }: { sessionId: string }) {
               window.dispatchEvent(new Event('zashipao-cloud-tasks-updated'));
             } catch (e) { if (generation.current === token) setError(messages[(e as {message?: string}).message ?? ''] ?? '儲存結果未確認，請重新載入查看。'); }
             finally { lock.current = false; setBusy(null); }
-          }}/><span className={task.completed ? 'text-muted line-through' : ''}>{task.title}</span>{busy === task.id ? <span role="status" className="text-xs text-muted">儲存中…</span> : null}
+          }}/><span className={task.completed ? 'min-w-0 break-words text-sm leading-6 text-muted line-through' : 'min-w-0 break-words text-sm leading-6'}>{task.title}</span>{busy === task.id ? <span role="status" className="text-xs text-muted">儲存中…</span> : null}
         </label>)}</div>
         {!room.tasks.length ? <p>本場沒有待辦。</p> : null}
-        {'finished_at' in room ? <div className="mt-6 border-t border-border pt-5">
-          <button disabled={finishing || busy !== null} className="rounded-full border border-border px-5 py-3 text-sm text-muted disabled:opacity-50" onClick={async () => {
-            if (lock.current || !window.confirm('提前結束你自己的參與？本場成果將立即保存，無法再回房繼續；其他人不受影響，未完成待辦仍會保留。')) return;
-            lock.current = true; setFinishing(true); setError('');
-            const token = generation.current;
-            try {
-              await videoRequest(sessionId, 'finish');
-              if (token === generation.current) setRetry(value => value + 1);
-              window.dispatchEvent(new Event('zashipao-bookings-updated'));
-            } catch (e) {
-              if (token === generation.current) setError(messages[(e as { message?: string }).message ?? ''] ?? '結束結果尚未確認，請重新載入查看；可以安全重試。');
-            } finally { lock.current = false; setFinishing(false); }
-          }}>{finishing ? '正在保存成果…' : '提前結束本場'}</button>
-          <p className="mt-2 text-xs text-muted">只結束自己的參與，其他人仍可繼續。</p>
-        </div> : null}
-      </> : !loading ? <Link href={`/sessions/waiting/${sessionId}`} className="text-forest underline">返回等候區</Link> : null}
+        <p className="mt-5 text-xs leading-6 text-muted">進度會隨勾選儲存。離開後，只要場次尚未結束，都可以再加入；場次結束後可查看成果。</p>
+      </RoomWorkspace> : !loading ? <Link href={`/sessions/waiting/${sessionId}`} className="text-forest underline">返回等候區</Link> : null}
     </section>
   </div></main>;
 }

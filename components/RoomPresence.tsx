@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { browserAuth } from '@/lib/supabase/browser';
 type Presence = { capacity: number; members: { member_id: string; label: string; is_self: boolean }[] };
-export function RoomPresence({ sessionId }: { sessionId: string }) {
+export function RoomPresence({ sessionId, dark = false, hideList = false }: { sessionId: string; dark?: boolean; hideList?: boolean }) {
   const [presence, setPresence] = useState<Presence | null>(null);
   const [error, setError] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -32,7 +32,8 @@ export function RoomPresence({ sessionId }: { sessionId: string }) {
     window.addEventListener('pagehide', leave);
     return () => { active = false; clearInterval(timer); subscription.unsubscribe(); window.removeEventListener('focus', heartbeat); window.removeEventListener('pagehide', leave); leave(); };
   }, [sessionId, retry]);
-  return <section aria-label="同房夥伴" className="my-6 rounded-xl border border-border p-4">
+  if (hideList) return null;
+  return <section aria-label="同房夥伴" className={dark ? "mt-6 border-t border-white/15 pt-4 text-white [&_.text-muted]:text-white/70 [&_.text-light]:text-white/60 [&_.text-forest]:text-[#A8D8BC] [&_li]:bg-white/5" : "my-6 rounded-xl border border-border p-4"}>
     <div className="flex items-center justify-between gap-3"><h2 className="font-bold">同房夥伴</h2>{presence ? <span className="text-sm text-forest">{presence.members.length} / {presence.capacity} 人在線</span> : null}</div>
     {error ? <p role="status" className="mt-3 text-sm text-muted">暫時無法確認在線狀態。<button className="ml-2 text-terracotta underline" onClick={() => setRetry(value => value + 1)}>重試</button></p>
       : presence ? <ul className="mt-3 flex flex-wrap gap-2">{presence.members.map(member => <li key={member.member_id} className="inline-flex items-center gap-2 rounded-full bg-forest-lt px-3 py-2 text-sm text-forest"><span aria-hidden="true" className="size-2 rounded-full bg-forest" />{member.label}{member.is_self ? '（你）' : ''}</li>)}</ul>

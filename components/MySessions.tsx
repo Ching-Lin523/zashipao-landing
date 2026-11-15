@@ -116,7 +116,7 @@ export function MySessions() {
         {session && !started ? <AddToCalendar session={{ id: booking.session_id, ...session }} /> : null}
         <BookingTaskPicker bookingId={booking.id} taskIds={booking.booking_tasks.map(item => Number(item.task_id))} disabled={!!busy || started} onSaved={load} />
         <div className="mb-4">
-          {session && now !== null && now >= Date.parse(session.starts_at) - 300000 && now < Date.parse(session.ends_at) ? <Link href={`/sessions/waiting/${booking.session_id}`} className="inline-flex rounded-full bg-forest px-5 py-3 text-sm font-bold text-white">進入等候區</Link> : <p className="text-xs text-light">{session && now !== null && now >= Date.parse(session.ends_at) ? '這場活動已結束。' : '等候區於活動開始前五分鐘開放。'}</p>}
+          {session && now !== null && now >= Date.parse(session.starts_at) - 300000 && now < Date.parse(session.ends_at) ? <Link href={`/sessions/waiting/${booking.session_id}`} className="inline-flex rounded-full bg-forest px-5 py-3 text-sm font-bold text-white">{started ? '進入房間' : '進入等候區'}</Link> : <p className="text-xs text-light">{session && now !== null && now >= Date.parse(session.ends_at) ? '這場活動已結束。' : '等候區於活動開始前五分鐘開放。'}</p>}
         </div>
         <button disabled={!!busy || started} className="rounded-full border border-border px-4 py-2 text-sm text-muted disabled:opacity-40" onClick={async () => {
           if (!window.confirm('確定取消這場預約？待辦事項會保留。')) return;

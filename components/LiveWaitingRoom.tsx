@@ -9,6 +9,8 @@ import { NicknameEditor } from './NicknameEditor';
 import { CameraPreview } from './CameraPreview';
 type Waiting = { id: string; title: string; starts_at: string; ends_at: string; server_time: string; tasks: { id: number; title: string; completed: boolean }[] };
 export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
+  const [blurEnabled, setBlurEnabled] = useState(false);
+  const [cameraEnabled, setCameraEnabled] = useState(false);
   const [data, setData] = useState<Waiting | null>(null);
   const [message, setMessage] = useState('正在確認預約與開放時間…');
   const [retry, setRetry] = useState(0);
@@ -54,14 +56,16 @@ export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
   return <main className="min-h-screen bg-cream px-[5%] py-8"><div className="mx-auto max-w-3xl">
     <Logo /><Link href="/my-sessions" className="my-6 block text-sm text-muted">← 返回已預約場次</Link>
     <section className="rounded-2xl border border-border bg-white p-6">
-      <p className="text-sm font-bold text-forest">等候區</p>
+      <p className="text-sm font-bold text-forest">{data && seconds === 0 ? '進房前準備' : '等候區'}</p>
       {data ? <>
         <h1 className="mt-3 font-serif text-3xl font-black">{data.title}</h1>
         <p className="mt-3 text-sm text-muted">{sessionDate(data.starts_at)} · {sessionTime(data.starts_at)}–{sessionTime(data.ends_at)}（台灣時間）</p>
-        <p className="my-6 rounded-xl bg-forest-lt p-4 text-forest">{seconds > 0 ? `距離開場 ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '已到開場時間，可以進入房間了。'}</p>
+        <p className="my-6 rounded-xl bg-forest-lt p-4 text-forest">{seconds > 0 ? `距離開場 ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '場次進行中，確認鏡頭後即可加入，不需要等待。'}</p>
         <NicknameEditor />
-        <CameraPreview key={sessionId} />
-        {seconds === 0 ? <Link href={`/sessions/room/${sessionId}`} className="mb-6 inline-flex rounded-full bg-terracotta px-6 py-3 font-bold text-white">進入房間</Link> : null}
+        <CameraPreview key={sessionId} onEnabledChange={setCameraEnabled} onBlurChange={setBlurEnabled} />
+        {seconds === 0 ? <Link href={`/sessions/room/${sessionId}`} onClick={() => {
+          try { sessionStorage.setItem(`room-camera:${sessionId}`, JSON.stringify({ enabled: cameraEnabled, blur: blurEnabled, at: Date.now() })); } catch { /* Storage unavailable: join with camera off. */ }
+        }} className="mb-6 inline-flex rounded-full bg-terracotta px-6 py-3 font-bold text-white">進入房間</Link> : null}
         <RoomPresence sessionId={sessionId} />
         <h2 className="mb-3 font-bold">這場要完成的待辦</h2>
         <ul className="grid gap-2">{data.tasks.map(task => <li className="rounded-xl bg-cream p-3" key={task.id}>{task.title}{task.completed ? '（已完成）' : ''}</li>)}</ul>

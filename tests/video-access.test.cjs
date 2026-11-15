@@ -30,10 +30,10 @@ test('finished/expired participant gets removed, cannot rejoin', async () => {
     const f = setup(options); assert.equal((await f.run()).status, 403); assert.equal(f.grants.length, 0); assert.ok(f.calls.some(c => c[0] === 'remove'));
   }
 });
-test('join grants only verified identity, requested session, camera/mic, bounded capacity', async () => {
+test('join grants only verified identity, requested session, camera/mic and chat, bounded capacity', async () => {
   const f = setup(); const response = await f.run(); assert.equal(response.status, 200);
   assert.equal(f.grants[0].room, 'session-00000000-0000-0000-0000-000000000001');
-  assert.equal(f.grants[0].canPublishData, false);
+  assert.equal(f.grants[0].canPublishData, true);
   assert.equal(f.calls.find(c => c[0] === 'token')[1].identity, 'verified-user');
   assert.equal(f.calls.find(c => c[0] === 'create')[1].maxParticipants, 5);
   assert.equal(response.headers['Cache-Control'], 'private, no-store');

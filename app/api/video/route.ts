@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     await service.createRoom({ name: roomName, maxParticipants: session.capacity, emptyTimeout: 60, departureTimeout: 20, metadata: JSON.stringify({ app: 'zashipao', version: 1, sessionId: input.sessionId, endsAt: room.ends_at }) });
     // Identity is authoritative and shared by all tabs for this account.
     const token = new AccessToken(key, secret, { identity: user.id, name: typeof room.display_name === 'string' && room.display_name.trim() ? room.display_name.slice(0, 24) : '夥伴', ttl: Math.max(1, Math.min(60, Math.floor((Date.parse(room.ends_at) - Date.parse(room.server_time)) / 1000))) });
-    token.addGrant({ roomJoin: true, room: roomName, canPublish: true, canSubscribe: true, canPublishData: false, canPublishSources: [TrackSource.CAMERA, TrackSource.MICROPHONE] });
+    token.addGrant({ roomJoin: true, room: roomName, canPublish: true, canSubscribe: true, canPublishData: true, canPublishSources: [TrackSource.CAMERA, TrackSource.MICROPHONE] });
     return reply({ token: await token.toJwt(), serverUrl: url });
   } catch { return reply({ error: 'VIDEO_UNAVAILABLE' }, 503); }
 }
