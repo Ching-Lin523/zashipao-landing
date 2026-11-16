@@ -17,7 +17,7 @@ function VideoTiles() {
   const state = useConnectionState();
   return <>
     <p role="status" className="mb-3 text-sm">{state === 'connected' ? `影音已連線 · ${tracks.length} 人` : state === 'reconnecting' ? '影音重新連線中…' : '影音連線中…'}</p>
-    <div className={`room-tile-grid grid gap-3 ${tracks.length <= 1 ? 'grid-cols-1' : 'grid-cols-2 max-[480px]:grid-cols-1'}`}>{tracks.map(track => <ParticipantTile key={track.participant.identity} trackRef={track} className="aspect-video overflow-hidden rounded-xl border border-white/15" />)}</div>
+    <div className={`room-tile-grid grid gap-3 ${tracks.length <= 1 ? 'grid-cols-1' : 'grid-cols-2 max-[480px]:grid-cols-1'}`}>{tracks.map(track => <ParticipantTile key={track.participant.identity} trackRef={track} className="aspect-video overflow-hidden rounded-lg border border-white/15" />)}</div>
     <div className="mt-4 flex flex-wrap gap-2"><TrackToggle source={Track.Source.Camera} showIcon>鏡頭</TrackToggle><TrackToggle source={Track.Source.Microphone} showIcon>麥克風</TrackToggle><StartAudio label="開啟播放聲音" /><BackgroundBlurControl track={cameraTrack?.track instanceof LocalVideoTrack ? cameraTrack.track : undefined} /></div>
     <RoomAudioRenderer />
   </>;
@@ -89,18 +89,18 @@ export function SessionVideo({ sessionId, saving = false }: { sessionId: string;
   return <section className="room-video min-w-0 text-white" aria-label="同場視訊">
     <h2 className="mb-2 font-bold">同場視訊</h2>
     <p className="mb-4 text-sm leading-6 text-white/70">鼓勵開著鏡頭，安靜陪伴彼此；不方便露臉也能參加。麥克風預設靜音。</p>
-    {error ? <p role="alert" className="mb-3 rounded-xl border border-[#E7B59F]/40 p-3 text-sm text-[#FFD4C9]">{error}</p> : null}
-    {credentials ? <div data-lk-theme="default" className="room-connection rounded-xl"><LiveKitRoom room={room} token={credentials.token} serverUrl={credentials.serverUrl} connect audio={false} video={capture}
+    {error ? <p role="alert" className="mb-3 rounded-lg border border-coral/40 p-3 text-sm text-paper">{error}</p> : null}
+    {credentials ? <div data-lk-theme="default" className="room-connection rounded-lg"><LiveKitRoom room={room} token={credentials.token} serverUrl={credentials.serverUrl} connect audio={false} video={capture}
       onDisconnected={() => { if (active.current) { setCredentials(null); setError('影音已離線。若在其他分頁連線，同帳號只會保留一個影音連線。'); } }}
       onError={() => setError('影音連線發生問題，請檢查網路後重新連線。')}
       onMediaDeviceFailure={() => setError('無法使用鏡頭或麥克風，請確認瀏覽器權限與裝置。仍可觀看其他人。')}>
       <VideoTiles />
       <RoomChat />
 
-    </LiveKitRoom></div> : <div className="flex min-h-[240px] flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-white/25 bg-white/5 p-6 text-center">
+    </LiveKitRoom></div> : <div className="flex min-h-[240px] flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/25 bg-white/5 p-6 text-center">
       <p role="status" className="mb-3 font-bold">{pending ? '正在沿用等候區設定，加入房間…' : preference ? '連線已停止' : '請先在等候區確認鏡頭畫面'}</p>
       <p className="mb-4 text-sm text-white/70">鏡頭與背景模糊沿用剛剛的選擇，麥克風保持靜音。</p>
-      {preference && !pending && <button className="min-h-11 rounded-full bg-forest px-5 text-sm font-bold" onClick={() => void connect()}>重新連線</button>}
+      {preference && !pending && <button className="min-h-11 rounded-lg bg-forest px-5 text-sm font-bold" onClick={() => void connect()}>重新連線</button>}
       {!pending && <Link href={`/sessions/waiting/${sessionId}`} className="mt-4 text-sm underline">返回等候區調整設定</Link>}
     </div>}
 

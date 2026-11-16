@@ -52,12 +52,12 @@ export function LiveSessionRoom({ sessionId }: { sessionId: string }) {
     window.addEventListener('focus', refresh);
     return () => { active = false; ++generation.current; clearInterval(poll); clearInterval(clock); subscription.unsubscribe(); window.removeEventListener('focus', refresh); };
   }, [sessionId, retry]);
-  return <main className="room-page min-h-screen bg-[#F1EEE6] px-3 py-5 sm:px-[4%] sm:py-8"><div className="room-page-inner mx-auto max-w-[1400px]">
+  return <main className="room-page min-h-screen bg-cream px-3 py-5 sm:px-[4%] sm:py-8"><div className="room-page-inner mx-auto max-w-[1400px]">
     <Logo /><Link href="/my-sessions" className="my-6 block text-sm text-muted">← 返回已預約場次</Link>
     <section>
       {loading ? <p role="status">正在確認場次資格…</p> : null}
       {error ? <div role="alert" className="my-4 text-terracotta">{error} <button className="underline" onClick={() => setRetry(value => value + 1)}>重新載入</button></div> : null}
-      {room && (remaining === 0 || room.finished_at) ? <div className="rounded-2xl bg-white p-6"><SessionResult sessionId={sessionId} /></div> : room ? <RoomWorkspace
+      {room && (remaining === 0 || room.finished_at) ? <div className="rounded-lg bg-paper p-6"><SessionResult sessionId={sessionId} /></div> : room ? <RoomWorkspace
         title={room.title}
         schedule={`${sessionDate(room.starts_at)} · ${sessionTime(room.starts_at)}–${sessionTime(room.ends_at)}（台灣時間）`}
         timer={`${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2,'0')}`}
@@ -65,7 +65,7 @@ export function LiveSessionRoom({ sessionId }: { sessionId: string }) {
       >
         <RoomTaskProgress completed={room.tasks.filter(task => task.completed).length} total={room.tasks.length} />
         <p className="mb-4 text-xs leading-6 text-muted">各自專心，一件件慢慢完成。勾選後會同步到你的待辦清單。</p>
-        <div className="grid gap-3">{room.tasks.map(task => <label key={task.id} className="flex items-start gap-3 rounded-xl border border-border bg-white p-3">
+        <div className="grid gap-3">{room.tasks.map(task => <label key={task.id} className="flex items-start gap-3 rounded-lg border border-border bg-paper p-3">
           <input type="checkbox" className="mt-0.5 size-5 shrink-0 accent-forest" checked={task.completed} disabled={busy !== null || remaining === 0} onChange={async event => {
             if (lock.current || remaining === 0) return;
             lock.current = true; setBusy(task.id); setError('');

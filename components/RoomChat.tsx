@@ -26,7 +26,7 @@ export function RoomChatPanel({ messages, send, connected = true, preview = fals
     }
   }, [messages.length, open]);
   const unread = Math.max(0, messages.length - seen);
-  return <RoomChatDock><section className="room-chat mt-5 overflow-hidden rounded-xl border border-white/20 bg-[#26221f] text-white" aria-label="本場聊天">
+  return <RoomChatDock><section className="room-chat mt-5 overflow-hidden rounded-lg border border-white/20 bg-ink text-white" aria-label="本場聊天">
     {!dock && <button type="button" aria-expanded={open} aria-controls="room-chat-content" className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-left" onClick={() => { follow.current = true; setOpen(!open); }}>
       <span className="font-bold">本場聊天 {preview && <span className="text-xs font-normal text-white/70">· 預覽</span>}</span>
       <span className="text-sm" aria-live="polite">{!open && unread > 0 ? `${unread} 則新訊息 · ` : ''}{open ? '收合 −' : '展開 ＋'}</span>
@@ -36,7 +36,7 @@ export function RoomChatPanel({ messages, send, connected = true, preview = fals
       <div ref={list} role="log" aria-label="聊天訊息" aria-live="polite" aria-relevant="additions" className="room-chat-messages max-h-60 space-y-3 overflow-y-auto overscroll-contain" onScroll={() => { const el = list.current; if (el) follow.current = el.scrollHeight - el.scrollTop - el.clientHeight < 50; }}>
         {messages.length === 0 && <p className="py-4 text-sm text-white/70">想提醒大家什麼？在這裡留一句話。</p>}
         {messages.map(message => <div key={message.id} className="rounded-lg bg-white/5 px-3 py-2">
-          <p className="break-words text-xs font-bold text-[#E7B59F]">{message.name}{message.own ? '（你）' : ''}</p>
+          <p className="break-words text-xs font-bold text-coral">{message.name}{message.own ? '（你）' : ''}</p>
           <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-white">{message.text}</p>
         </div>)}
       </div>
@@ -50,9 +50,9 @@ export function RoomChatPanel({ messages, send, connected = true, preview = fals
         finally { lock.current = false; setSending(false); }
       }}>
         <label htmlFor="room-chat-draft" className="sr-only">輸入聊天訊息</label>
-        <textarea id="room-chat-draft" value={draft} onChange={event => setDraft(event.target.value)} maxLength={500} rows={2} disabled={sending} placeholder="輸入訊息，不打斷大家的專注…" className="w-full resize-y rounded-lg border border-white/30 bg-[#171412] p-3 text-sm text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#E7B59F]" />
-        <div className="mt-2 flex items-center justify-between gap-3"><span className="text-xs text-white/70">{connected ? `${draft.length}/500 · 按送出傳送` : '重新連線中，暫時無法送出'}</span><button type="submit" disabled={!connected || sending || !draft.trim()} className="min-h-11 rounded-full bg-[#C45F38] px-5 text-sm font-bold text-white disabled:opacity-50">{sending ? '傳送中…' : '送出'}</button></div>
-        {error && <p role="alert" className="mt-2 text-sm text-[#FFD4C9]">{error}</p>}
+        <textarea id="room-chat-draft" value={draft} onChange={event => setDraft(event.target.value)} maxLength={500} rows={2} disabled={sending} placeholder="輸入訊息，不打斷大家的專注…" className="w-full resize-y rounded-lg border border-white/30 bg-ink p-3 text-sm text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-coral" />
+        <div className="mt-2 flex items-center justify-between gap-3"><span className="text-xs text-white/70">{connected ? `${draft.length}/500 · 按送出傳送` : '重新連線中，暫時無法送出'}</span><button type="submit" disabled={!connected || sending || !draft.trim()} className="min-h-11 rounded-lg bg-coral px-5 text-sm font-bold text-ink disabled:opacity-50">{sending ? '傳送中…' : '送出'}</button></div>
+        {error && <p role="alert" className="mt-2 text-sm text-paper">{error}</p>}
       </form>
     </div>
   </section></RoomChatDock>;

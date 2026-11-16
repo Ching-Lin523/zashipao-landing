@@ -14,7 +14,7 @@ export function BackgroundBlurControl({ track, onChange }: { track?: LocalVideoT
     return () => { generation.current++; };
   }, [track]);
   return <div className="text-sm">
-    <button type="button" aria-pressed={enabled} disabled={!track || pending} className="min-h-11 rounded-full border border-current/30 px-4 py-2 disabled:opacity-50" onClick={async () => {
+    <button type="button" aria-pressed={enabled} disabled={!track || pending} className="min-h-11 rounded-lg border border-current/30 px-4 py-2 disabled:opacity-50" onClick={async () => {
       if (!track || busy.current) return;
       busy.current = true; setPending(true); setError('');
       const current = generation.current;

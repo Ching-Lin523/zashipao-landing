@@ -54,14 +54,14 @@ export function CameraPreview({ onEnabledChange, onBlurChange }: { onEnabledChan
     } finally { if (token === generation.current) setPending(false); }
   };
   useEffect(() => { void start(); }, []);
-  return <section aria-label="進房前鏡頭預覽" className="my-6 rounded-xl border border-border p-4">
+  return <section aria-label="進房前鏡頭預覽" className="my-6 rounded-lg border border-border p-4">
     <h2 className="font-bold">開著鏡頭，讓彼此有一起做事的陪伴感。</h2>
     <p className="mt-2 text-sm text-muted">不用一直看鏡頭，也不用聊天，舒服地做自己的事就好。不方便露臉時，也可以關閉鏡頭參與。</p>
-    <div className="relative mt-4 aspect-video overflow-hidden rounded-xl bg-cream">
+    <div className="relative mt-4 aspect-video overflow-hidden rounded-lg bg-cream">
       <video ref={video} muted playsInline aria-label="自己的攝影機預覽" className={`h-full w-full -scale-x-100 object-cover ${enabled ? '' : 'invisible'}`} />
       {!enabled ? <p className="absolute inset-0 flex items-center justify-center text-sm text-muted">{pending ? '等待攝影機授權…' : '鏡頭已關閉'}</p> : null}
     </div>
-    <button type="button" aria-pressed={enabled} className="mt-4 min-h-11 rounded-full border border-border px-5 py-2 text-sm" onClick={() => {
+    <button type="button" aria-pressed={enabled} className="mt-4 min-h-11 rounded-lg border border-border px-5 py-2 text-sm" onClick={() => {
       if (enabled || pending) { stop(); setEnabled(false); setPending(false); setError(''); }
       else void start();
     }}>{pending ? '取消預覽' : enabled ? '關閉鏡頭' : '開啟鏡頭預覽'}</button>

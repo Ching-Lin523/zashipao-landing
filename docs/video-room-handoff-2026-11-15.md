@@ -34,3 +34,9 @@ TypeScript、29 項既有自動測試通過；桌面預覽測過工具切換與�
 - [ ] Vercel Preview 與正式網域的完整流程（目前主要在 localhost 開發）。
 
 建議先部署 Preview、完成上述測試後再合併。若 Vercel 顯示 Authorization required to deploy，需由有權限的 Jasmin 處理部署授權。
+
+## Key Vision v01 對齊
+
+2026-11-15｜Codex｜依 Jasmin 提供的 Key Vision v01 調整房間、鏡頭準備與預覽介面：黑體標題、8px 圓角、共用 Paper／Cream／Ink／Coral／Forest 色彩及清楚的鍵盤焦點。離開入口使用次要按鈕，確認視窗保留亮橘的「確認離開」。規範見 key-vision-v01.md。本批沒有全面重做首頁及其他產品頁。
+
+本次驗證：production build 與 29 項既有測試通過；390px 預覽沒有水平溢出，離開確認視窗可開啟。桌面較矮視窗的示意人物區仍可能擁擠，四個指定斷點與手機實機驗收尚未全部完成，請勿視為最終驗收。
